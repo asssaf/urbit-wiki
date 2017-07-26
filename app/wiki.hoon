@@ -156,16 +156,20 @@
   [c ~]
 ::
 ++  unescape
-  |=  a/tape
-  ^-  tape
-  ?~  a
-    ~
-  ?.  =(-.a '~')
-    [i=-.a t=$(a +.a)]
-  :_  t=$(a +>+.a)
-  =+  code=(scag 2 (slag 1 `(list @t)`a))
-  ?:  =(code "2f")  i='/'
-  ?:  =(code "7e")  i='~'
+  |=  a/@t
+  ^-  @t
+  ?:  =(a '')
+    ''
+  =+  first=(end 3 1 a)
+  ?.  =(first '~')
+    (cat 3 first $(a (rsh 3 1 a)))
+  =+  code=(end 3 2 (rsh 3 1 a))
+  %-  cat
+  :-  3
+  :_  $(a (rsh 3 3 a))
+  ?:  =(code '2f')  '/'
+  ?:  =(code '7e')  '~'
+  ~|  [%bad-sequence code=`@t`code]
   !!
 ::
 :: get cached article list, initialize if needed
@@ -179,7 +183,7 @@
     =+  res=$
     [(welp -.res (watch-dir wiki-base-path)) +.res]
   =+  arts=(~(tap by articles) ~)
-  =+  arts2=(turn arts |=({p/@t q/*} [(crip (unescape (trip p))) ~]))
+  =+  arts2=(turn arts |=({p/@t q/*} [(unescape p) ~]))
   :_  +>.$
   %+  turn  (prey /wiki/article/list hid)
   |=({o/bone *} `move`[o %diff %json (jobe arts2)])
