@@ -216,10 +216,15 @@ const View = {
   template: `
     <div>
       <small>
-        <router-link to="/">Home</router-link>
-        <a @click.prevent="edit" href="#">Edit</a>
+        <router-link to="/">Home</router-link> |
+        <span v-if="$root.dukeOrBetter">
+          <a @click.prevent="edit" href="#">Edit</a>
+        </span>
+        <span v-else>
+          <span title="Duke rank (planet) or higher required to edit">Edit (?)</span>
+        </span>
         <span v-if="author">
-          Last edit by: {{ author }}
+          | Last edit by: {{ author }}
           (at: {{ at }})
         </span>
       </small>
@@ -303,6 +308,15 @@ const app = new Vue({
       articles: [],
       articlesLoading: true,
       id: 1
+    }
+  },
+  computed: {
+    user: function() {
+      return window.urb.user
+    },
+    dukeOrBetter: function() {
+      debug(window.urb.user)
+      return window.urb.user.length <= 7
     }
   },
   created: function() {
