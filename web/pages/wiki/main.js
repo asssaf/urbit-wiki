@@ -318,7 +318,6 @@ const app = new Vue({
       return window.urb.user
     },
     dukeOrBetter: function() {
-      debug(window.urb.user)
       return window.urb.user.length <= 7
     }
   },
