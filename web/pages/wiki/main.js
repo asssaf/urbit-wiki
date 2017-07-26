@@ -74,9 +74,12 @@ const Main = {
   template: `
     <div>
       <h1>Articles</h1>
-      <div>
+      <div v-if="$root.dukeOrBetter">
         <input v-model.trim="newArticle" />
         <button @click="editNewArticle" :disabled="newArticleDisabled">New</button>
+      </div>
+      <div v-else>
+        <button title="Duke rank (planet) or higher required to create new articles" disabled="true">New</button>
       </div>
       <ul v-for="article in articles">
         <li><router-link :to="{ name: 'view', params: { article: article } }">{{ article }}</router-link></li>
