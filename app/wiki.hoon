@@ -29,7 +29,12 @@
     :: read request - just return existing content
     %+  turn  (prey /wiki/article/content hid)
     |=({o/bone *} `move`[o %diff %wiki-change w])
-  :: write request - do a version check
+  :: write request
+  :: do a security check - only duke or better allowed
+  ?.  ?=(?($czar $king $duke) (clan src.hid))
+    ~|  %duke-or-better-required
+    !!
+  :: do a version check
   ?.  =(ver.a ver.w)
     ~|  %version-check-failed
     !!
