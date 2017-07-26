@@ -70,9 +70,11 @@ function render(content) {
 }
 
 
-const Main = {
+const AllArticles = {
   template: `
     <div>
+      <nav-bar />
+
       <h1>Articles</h1>
       <div v-if="$root.dukeOrBetter">
         <input v-model.trim="newArticle" />
@@ -122,7 +124,7 @@ const Edit = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" :is-edit="true" />
+      <nav-bar :article="article" />
 
       <h1>Edit {{ article }}</h1>
       <div>
@@ -219,7 +221,7 @@ const View = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" :is-edit="false" :author="author" :at="at" />
+      <nav-bar :article="article" :editable="true" :author="author" :at="at" />
 
       <h1>{{ article }}</h1>
       <div v-if="loading">
@@ -282,11 +284,14 @@ const View = {
 
 
 Vue.component('nav-bar', {
-  props: [ "article", "isEdit", "author", "at"],
+  props: [ "article", "editable", "author", "at"],
   template: `
   <small>
     <router-link to="/">Home</router-link>
-    <span v-if="!isEdit">
+    <span v-if="article">
+      | <router-link :to="{ name: 'all' }">All</router-link>
+    </span>
+    <span v-if="editable">
       |
       <span v-if="$root.dukeOrBetter">
         <a @click.prevent="edit" href="#">Edit</a>
@@ -310,9 +315,10 @@ Vue.component('nav-bar', {
 
 
 const routes = [
-  { path: '/', component: Main },
+  { name: 'default', path: '/', redirect: '/view/MainPage' },
   { name: 'edit', path: '/edit/:article', component: Edit, props: true },
-  { name: 'view', path: '/view/:article', component: View, props: true }
+  { name: 'view', path: '/view/:article', component: View, props: true },
+  { name: 'all', path: '/all', component: AllArticles },
 ]
 
 
