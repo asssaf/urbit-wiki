@@ -126,6 +126,9 @@ const Edit = {
 
       <h1>Edit {{ article }}</h1>
       <div>
+        <small>as ~{{ $root.user }}</small>
+      </div>
+      <div>
         <textarea cols="80" rows="25" v-model="content" :disabled="loading" />
       </div>
       <div>
