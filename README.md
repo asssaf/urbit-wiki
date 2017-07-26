@@ -3,6 +3,8 @@
 ## Description
 Wiki for urbit
 
+![wiki demo](https://github.com/asssaf/urbit-wiki/raw/gif/wiki.gif "Wiki demo")
+
 ## Install
 ### Makefile
 ```
@@ -32,3 +34,5 @@ For internal wiki links use the format `[[other-page]]`
 
 ## Storage
 All wiki pages are stored at `pier/home/web/pages/wiki/pub`
+
+Since %clay is used for storage, all the history is also preserved.
