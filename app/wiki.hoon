@@ -64,7 +64,7 @@
 ++  path-from-article
   |=  art/tape
   ^-  path
-  =+  ^-  ext/path  [(crip (escape art)) %md ~]
+  =+  ^-  ext/path  [(escape (crip art)) %md ~]
   (weld wiki-base-path-full ext)
 ::
 ++  article-header
@@ -141,19 +141,16 @@
   (get-articles wiki-base-path-full)
 ::
 ++  escape
-  |=  a/tape
-  ^-  tape
-  ?~  a
-    ~
-  (welp (escape-char -.a) (escape +.a))
-::
-++  escape-char
-  |=  c/@
-  ?:  =(c '/')
-    "~2f"
-  ?:  =(c '~')
-    "~7e"
-  [c ~]
+  |=  a/@t
+  ?:  =(a '')
+    ''
+  =+  first=(end 3 1 a)
+  %-  cat
+  :-  3
+  :_  $(a (rsh 3 1 a))
+  ?:  =(first '/')  '~2f'
+  ?:  =(first '~')  '~7e'
+  first
 ::
 ++  unescape
   |=  a/@t
