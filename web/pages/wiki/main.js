@@ -122,9 +122,7 @@ const Edit = {
   props: [ "article" ],
   template: `
     <div>
-      <small>
-        <router-link to="/">Home</router-link>
-      </small>
+      <nav-bar :article="article" :is-edit="true" />
 
       <h1>Edit {{ article }}</h1>
       <div>
@@ -218,19 +216,8 @@ const View = {
   props: [ "article" ],
   template: `
     <div>
-      <small>
-        <router-link to="/">Home</router-link> |
-        <span v-if="$root.dukeOrBetter">
-          <a @click.prevent="edit" href="#">Edit</a>
-        </span>
-        <span v-else>
-          <span title="Duke rank (planet) or higher required to edit">Edit (?)</span>
-        </span>
-        <span v-if="author">
-          | Last edit by: {{ author }}
-          (at: {{ at }})
-        </span>
-      </small>
+      <nav-bar :article="article" :is-edit="false" :author="author" :at="at" />
+
       <h1>{{ article }}</h1>
       <div v-if="loading">
         Loading...
@@ -289,6 +276,34 @@ const View = {
     }
   }
 }
+
+
+Vue.component('nav-bar', {
+  props: [ "article", "isEdit", "author", "at"],
+  template: `
+  <small>
+    <router-link to="/">Home</router-link>
+    <span v-if="!isEdit">
+      |
+      <span v-if="$root.dukeOrBetter">
+        <a @click.prevent="edit" href="#">Edit</a>
+      </span>
+      <span v-else>
+        <span title="Duke rank (planet) or higher required to edit">Edit (?)</span>
+      </span>
+    </span>
+    <span v-if="author">
+      | Last edit by: {{ author }}
+      (at: {{ at }})
+    </span>
+  </small>
+  `,
+  methods: {
+    edit: function() {
+      this.$router.push({ name: "edit", params: { article: this.article } })
+    }
+  }
+})
 
 
 const routes = [
