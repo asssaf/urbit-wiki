@@ -16,28 +16,145 @@
 --
 ::
 |_  {hid/bowl articles/(map @t *) initialized/_|}
-++  prep  _`.  :: wipe state when app code is changed
+::++  prep  _`.  :: wipe state when app code is changed
+::
 :: save an updated wiki, or request
 ++  poke-wiki-change
   |=  a/delt
   ^-  {(list move) _+>.$}
   ~|  poked-with=a
-  =+  pax=(path-from-article art.a)
-  =+  w=(read-wiki art.a)
   :_  +>.$
-  ?:  =(ver.a "")
+  ?:  =(typ.a "read")
     :: read request - just return existing content
-    %+  turn  (prey /wiki/article/content hid)
+    ?:  =(ver.a "all")
+      (get-history art.a)
+    ?.  =(ver.a "")
+      :: get specific version
+      =+  r=(scan ver.a dem:ag)
+      (get-history-for-rev art.a r r ~)
+    :: get latest (or empty if doesn't exist)
+    =+  w=(read-wiki-immediate art.a)
+    %+  turn  (pale hid (prix-and-src /wiki/article/content src.hid))
     |=({o/bone *} `move`[o %diff %wiki-change w])
   :: write request
   :: do a security check - only duke or better allowed
   ?.  ?=(?($czar $king $duke) (clan src.hid))
     ~|  %duke-or-better-required
     !!
+  =+  w=(read-wiki-immediate art.a)
   :: do a version check
   ?.  =(ver.a ver.w)
     ~|  %version-check-failed
     !!
+  :: increment version
+  =+  newver=+((scan ver.w dem:ag))
+  %-  welp
+  :_  %+  weld
+    (create-label (escape-for-label (crip art.a)) newver)
+    :: since this is a write, notify all clients
+    %+  turn  (pale hid (prix /wiki/article/content))
+    |=({o/bone *} `move`[o %diff %wiki-change a(ver (scow %ud newver))])
+  =+  pax=(path-from-article art.a)
+  (write-wiki a(ver (scow %ud newver)) pax)
+::
+++  peer-wiki-article
+  |=  pax/path
+  ^-  {(list move) _+>.$}
+  ~&  [%subscribed-to pax=pax]
+  ?:  =(pax /list)
+    (get-articles wiki-base-path-full)
+  [~ +>.$]
+::
+++  wiki-desk
+  %home
+::
+++  wiki-base-path
+  `path`/web/pages/wiki/pub
+::
+++  wiki-base-path-full
+  (wiki-base-path-full-at da+now.hid)
+::
+++  wiki-base-path-full-at
+  |=  at/case
+  %-  tope
+  %-  beam
+  :_  (flop wiki-base-path)
+  (beak our.hid wiki-desk at)
+::
+++  relpath-from-article
+  |=  art/tape
+  =+  ^-  ext/path  [(escape (crip art)) %md ~]
+  (weld wiki-base-path ext)
+::
+++  path-from-article
+  |=  art/tape
+  (path-from-article-at art da+now.hid)
+::
+++  path-from-article-at
+  |=  {art/tape at/case}
+  ^-  path
+  =+  ^-  ext/path  [(escape (crip art)) %md ~]
+  (weld (wiki-base-path-full-at at) ext)
+::
+++  article-header
+  |=  a/delt
+  ^-  (map cord cord)
+  %-  malt
+  %-  limo
+  :*
+    [%author (scot %p src.hid)]
+    [%at (scot %da now.hid)]
+    [%article (crip art.a)]
+    [%version (crip ver.a)]
+    ~
+  ==
+::
+++  read-wiki
+  |=  {art/tape wir/wire}
+  (read-wiki-at art wir da+now.hid)
+::
+++  read-wiki-at
+  |=  {art/tape wir/wire cas/case}
+  =+  pax=(relpath-from-article art)
+  =+  ^-  rav/rave  [%sing %x cas pax]
+  =+  ^-  rif/riff  [wiki-desk (some rav)]
+  [ost.hid %warp wir [our.hid our.hid] rif]~
+::
+++  read-wiki-immediate
+  |=  art/tape
+  ^-  delt
+  =+  pax=(path-from-article art)
+  =+  maybe=(file pax)
+  ?~  maybe
+    :: article doesn't exist, return a default structure
+    [(scow %p src.hid) now.hid "" art "" "0"]
+  =+  v=(need maybe)
+  ?.  ?=(@t v)
+    ~|  %no-content
+    !!
+  =+  ^-  u/@t  v
+  (parse-wiki u)
+::
+++  parse-wiki
+  |=  u/@t
+  ^-  delt
+  =+  [atr mud]=(parse:frontmatter (lore u))
+  =+  aut=(trip (need (~(get by atr) 'author')))
+  =+  at=(need (slaw %da (need (~(get by atr) 'at'))))
+  =+  art=(trip (need (~(get by atr) 'article')))
+  =+  ver=(trip (need (~(get by atr) 'version')))
+  :*
+    aut
+    at
+    ""
+    art
+    (trip mud)
+    ver
+  ==
+::
+++  write-wiki
+  |=  {a/delt pax/path}
+  ^-  (list move)
   %+  write-md  pax
   %-  nule
   %+  print:frontmatter
@@ -48,76 +165,6 @@
   ?:  =((scag 1 (flop cot.a)) "\0a")
     cot.a
   (weld cot.a "\0a")
-::
-++  peer-wiki-article
-  |=  pax/path
-  ^-  {(list move) _+>.$}
-  ~&  [%subscribed-to pax=pax]
-  ?.  =(pax /list)
-    [~ +>.$]
-  (get-articles wiki-base-path-full)
-::
-++  wiki-base-path
-  `path`/web/pages/wiki/pub
-::
-++  wiki-base-path-full
-  %-  tope
-  %-  beam
-  :_  (flop wiki-base-path)
-  (beak our.hid %home da+now.hid)
-::
-++  path-from-article
-  |=  art/tape
-  ^-  path
-  =+  ^-  ext/path  [(escape (crip art)) %md ~]
-  (weld wiki-base-path-full ext)
-::
-++  article-header
-  |=  a/delt
-  ^-  (map cord cord)
-  :: increment version
-  =+  ver=(scot %ud +((scan ver.a dem:ag)))
-  %-  malt
-  %-  limo
-  :*
-    [%author (scot %p src.hid)]
-    [%at (scot %da now.hid)]
-    [%article (crip art.a)]
-    [%version ver]
-    ~
-  ==
-::
-++  read-wiki
-  |=  art/path
-  ^-  delt
-  =+  pax=(path-from-article art)
-  =+  maybe=(file pax)
-  ?~  maybe
-    :: article doesn't - exist, return a default structure
-    [(scow %p src.hid) now.hid art "" "0"]
-  =+  v=(need maybe)
-  ?>  ?=(@t v)
-  =+  ^-  u/@t  v
-  =+  [atr mud]=(parse:frontmatter (lore u))
-  =+  aut=(trip (need (~(get by atr) 'author')))
-  =+  at=(need (slaw %da (need (~(get by atr) 'at'))))
-  =+  art=(trip (need (~(get by atr) 'article')))
-  =+  ver=(trip (need (~(get by atr) 'version')))
-  :*
-    aut
-    at
-    art
-    (trip mud)
-    ver
-  ==
-::
-++  read
-  |=  pax/path
-  ~&  read-pax=pax
-  =+  v=(need (file pax))
-  ?>  ?=(@t v)
-  =+  ^-  u/@t  v
-  [~ +>.$]
 ::
 ++  write-md
   |=  {pax/path cot/cord}
@@ -133,20 +180,52 @@
   ^-  (list move)
   :~  :-  ost.hid
     :^    %warp
-        a
+        /article/list
       [our.hid our.hid]
-    :-  %home
+    :-  wiki-desk
     :-  ~
     [%next %y da+now.hid a]
   ==
 ::
 ++  writ
   |=  {way/wire rot/riot}
-  =.  initialized  |
-  (get-articles wiki-base-path-full)
+  ?:  =(way /article/list)
+    =.  initialized  |                                  :: invalidate cache
+    (get-articles wiki-base-path-full)
+  :: content/history query result
+  ?~  rot
+    [~ +>.$]
+  =+  a=(need rot)
+  =+  p=q.a
+  =+  u=q.q.r.a
+  ?.  ?=(@t u)
+    ~&  %no-content
+    [~ +>.$]
+  =+  w=(parse-wiki u)
+  :_  +>.$
+  %+  turn  (pale hid (prix-and-src (welp /wiki way) src.hid))
+  |=({o/bone *} `move`[o %diff %wiki-change w])
+::
+++  escape-for-label
+  |=  a/@t
+  ^-  @tas
+  ?:  =(a '')
+    ''
+  =+  first=(end 3 1 a)
+  %-  cat
+  :-  3
+  :_  $(a (rsh 3 1 a))
+  ?:
+    ?|
+      &((gte first 'a') (lte first 'z'))
+      &((gte first '0') (lte first '9'))
+    ==
+    first
+  (cat 3 '-' (scot %ud first))
 ::
 ++  escape
   |=  a/@t
+  ^-  @t
   ?:  =(a '')
     ''
   =+  first=(end 3 1 a)
@@ -187,7 +266,7 @@
   =+  arts=(~(tap by articles) ~)
   =+  arts2=(turn arts |=({p/@t q/*} [(unescape p) ~]))
   :_  +>.$
-  %+  turn  (prey /wiki/article/list hid)
+  %+  turn  (pale hid (prix-and-src /wiki/article/list src.hid))
   |=({o/bone *} `move`[o %diff %json (jobe arts2)])
 ::
 ::  get directory listing (for md files) once
@@ -202,4 +281,58 @@
     ~
   =+  [atr mud]=(parse:frontmatter (lore a))
   atr
+::
+++  get-history
+  |=  art/tape
+  ^-  (list move)
+  ~&  [%get-history art=art]
+  =+  latest=(read-wiki-immediate art)
+  ~&  ver=ver.latest
+  ?:  =(ver.latest "0")
+    ~&  %no-history
+    ~
+  =+  rev=(scan ver.latest dem:ag)
+  ::  look back for no more than 10 revision
+  =+  min=?:((lte rev 10) 1 (sub rev 10))
+  (get-history-for-rev art rev min ~)
+::
+++  get-history-for-rev
+  |=  {art/tape rev/@ud min/@ud labels/(unit (map @tas @ud))}
+  ^-  (list move)
+  ?:  (lth rev min)
+    ~
+  ?~  labels
+    =+  dom=.^(dome cv+wiki-base-path-full)
+    $(labels (some lab.dom))
+  %-  welp  :_  $(rev (dec rev))
+  :: check that the label exists
+  =+  label=(label-for-rev (escape-for-label (crip art)) rev)
+  ?~  (~(get by (need labels)) label)
+    ~   ::TODO send default value
+  (read-wiki-at art /article/history tas+label)
+::
+++  label-for-rev
+  |=  {art/@t ver/@ud}
+  ^-  @tas
+  (rap 3 %wiki- art '-' (scot %ud ver) ~)
+::
+++  create-label
+  |=  {art/@t ver/@ud}
+  ^-  (list move)
+  =+  label=(label-for-rev art ver)
+  ~&  label=label
+  [ost.hid %info /wiki-label our.hid wiki-desk %| label]~
+::
+:: filter by path prefix and event source
+++  prix-and-src
+  |=  {pax/path src/ship}
+  (both (prix pax) (bysrc src))
+::
+++  both  :: filter by two criteria
+  |=  {a/$-(sink ?) b/$-(sink ?)}  |=  s/sink  ^-  ?
+  &((a s) (b s))
+::
+++  bysrc            :: filter by src
+  |=  src/ship  |=  sink  ^-  ?
+  =(q.+< src)
 --

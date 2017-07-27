@@ -5,7 +5,7 @@
     ;script(type "text/javascript", src "/~/at/lib/js/vue/vue.js");
     ;script(type "text/javascript", src "/~/at/lib/js/vue-router/vue-router.js");
     ;script(type "text/javascript", src "/~/at/lib/js/marked/marked.min.js");
-    ;title:"Edit"
+    ;title:"Wiki"
     ;style(type "text/css")
       ; #pass-cont { display: none; }
       ; #password { font: monospace; }

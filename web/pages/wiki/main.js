@@ -1,11 +1,9 @@
 window.urb.appl = "wiki"
+
 debugEnabled = true
 
-function debug(arg) {
-  if (debugEnabled) {
-    console.log(arg)
-  }
-}
+if (debugEnabled) var debug = console.log.bind(window.console)
+else var debug = function(){}
 
 function bindPath(path, callback) {
   window.urb.bind("/wiki/" + path, callback)
@@ -43,11 +41,12 @@ function poke(article, callback) {
     })
 }
 
-function load(article) {
+function load(article, version) {
   poke({
+    "type": "read",
     "article": article,
     "content": "",
-    "version": "",
+    "version": version || "",
   })
 }
 
@@ -124,7 +123,7 @@ const Edit = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" />
+      <nav-bar :article="article" :version="version" />
 
       <h1>Edit {{ article }}</h1>
       <div>
@@ -198,6 +197,7 @@ const Edit = {
     },
     save: function() {
       poke({
+        "type": "write",
         "article": this.article,
         "content": this.content,
         "version": this.version,
@@ -283,13 +283,106 @@ const View = {
 }
 
 
+const History = {
+  props: [ "article" ],
+  template: `
+    <div>
+      <nav-bar :article="article" :history="true" />
+      <h1>History of {{ article }}</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Date</th>
+            <th>Author</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="rev in revisions" :style="rev == selected ? 'background: grey': ''" @click="selected = rev">
+            <td><a @click.prevent="selected = rev" href="#">{{ rev.version }}</a></td>
+            <td>{{ new Date(rev.at).toString() }}</td>
+            <td>{{ rev.author }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-if="selected">
+        <div>
+          View as:
+          <input type="radio" id="view-source" value="source" v-model="viewAs" />
+          <label for="view-source">Source</label>
+          <input type="radio" id="view-preview" value="preview" v-model="viewAs" />
+          <label for="view-preview">Preview</label>
+        </div>
+
+        <h1>Version {{selected.version}}</h1>
+
+        <div v-if="viewAs == 'preview'" style="border: 1px black solid">
+          <div v-html="contentRendered"  />
+        </div>
+        <div v-else>
+           <textarea v-model="selected.content" disabled="true" cols="80" rows="20" />
+        </div>
+      </div>
+    </div>
+  `,
+  data: function() {
+    return {
+      listenerKey: null,
+      revisionMap: {},
+      revisions: [],
+      selected: null,
+      viewAs: "preview",
+    }
+  },
+  computed: {
+    contentRendered: function() {
+      return render(this.selected.content)
+    },
+  },
+  created: function() {
+    bindPath("article/history", this.accept)
+    load(this.article, "all")
+  },
+  destroyed: function() {
+    dropPath("article/history", this.accept)
+  },
+  watch: {
+    '$route' (to, from) {
+      dropPath("article/history", this.accept)
+      this.revisionMap = {}
+      this.revisions = []
+      bindPath("article/history", this.accept)
+      load(to.params.article, "all")
+    }
+  },
+  methods: {
+    accept: function(err, dat) {
+      if (dat.data.ok || dat.data.article != this.article) {
+        return
+      }
+      if (!this.revisionMap[dat.data.version]) {
+        this.revisionMap[dat.data.version] = dat.data
+        this.revisions.push(dat.data)
+      }
+    }
+  }
+}
+
 Vue.component('nav-bar', {
-  props: [ "article", "editable", "author", "at"],
+  props: [ "article", "version", "editable", "history", "author", "at"],
   template: `
   <small>
     <router-link to="/">Home</router-link>
     <span v-if="article">
       | <router-link :to="{ name: 'all' }">All</router-link>
+      <span v-if="history">
+        | <router-link :to="{ name: 'view', params: {article: this.article} }">Latest</router-link>
+      </span>
+      <span v-else-if="!version || version != '0'">
+        | <router-link :to="{ name: 'history', params: { article: this.article} }">History</router-link>
+      </span>
     </span>
     <span v-if="editable">
       |
@@ -318,6 +411,7 @@ const routes = [
   { name: 'default', path: '/', redirect: '/view/MainPage' },
   { name: 'edit', path: '/edit/:article', component: Edit, props: true },
   { name: 'view', path: '/view/:article', component: View, props: true },
+  { name: 'history', path: '/history/:article', component: History, props: true },
   { name: 'all', path: '/all', component: AllArticles },
 ]
 
