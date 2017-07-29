@@ -24,13 +24,13 @@
   ^-  {(list move) _+>.$}
   ~|  poked-with=a
   :_  +>.$
-  ?:  =(typ.a "read")
+  ?:  =(typ.a 'read')
     :: read request - just return existing content
-    ?:  =(ver.a "all")
+    ?:  =(ver.a 'all')
       (get-history art.a)
-    ?.  =(ver.a "")
+    ?.  =(ver.a '')
       :: get specific version
-      =+  r=(scan ver.a dem:ag)
+      =+  r=(rash ver.a dem:ag)
       (get-history-for-rev art.a r r ~)
     :: get latest (or empty if doesn't exist)
     =+  w=(read-wiki-immediate art.a)
@@ -47,15 +47,16 @@
     ~|  %version-check-failed
     !!
   :: increment version
-  =+  newver=+((scan ver.w dem:ag))
+  =+  newver=+((rash ver.w dem:ag))
   %-  welp
   :_  %+  weld
-    (create-label (escape-for-label (crip art.a)) newver)
+    (create-label (escape-for-label art.a) newver)
     :: since this is a write, notify all clients
     %+  turn  (pale hid (prix /wiki/article/content))
-    |=({o/bone *} `move`[o %diff %wiki-change a(ver (scow %ud newver))])
+    :: FIXME this doesn't contain the author and date of the change
+    |=({o/bone *} `move`[o %diff %wiki-change a(ver (scot %ud newver))])
   =+  pax=(path-from-article art.a)
-  (write-wiki a(ver (scow %ud newver)) pax)
+  (write-wiki a(ver (scot %ud newver)) pax)
 ::
 ++  peer-wiki-article
   |=  pax/path
@@ -82,18 +83,18 @@
   (beak our.hid wiki-desk at)
 ::
 ++  relpath-from-article
-  |=  art/tape
-  =+  ^-  ext/path  [(escape (crip art)) %md ~]
+  |=  art/cord
+  =+  ^-  ext/path  [(escape art) %md ~]
   (weld wiki-base-path ext)
 ::
 ++  path-from-article
-  |=  art/tape
+  |=  art/cord
   (path-from-article-at art da+now.hid)
 ::
 ++  path-from-article-at
-  |=  {art/tape at/case}
+  |=  {art/cord at/case}
   ^-  path
-  =+  ^-  ext/path  [(escape (crip art)) %md ~]
+  =+  ^-  ext/path  [(escape art) %md ~]
   (weld (wiki-base-path-full-at at) ext)
 ::
 ++  article-header
@@ -104,30 +105,32 @@
   :*
     [%author (scot %p src.hid)]
     [%at (scot %da now.hid)]
-    [%article (crip art.a)]
-    [%version (crip ver.a)]
+    [%article art.a]
+    [%version ver.a]
+    [%message msg.a]
     ~
   ==
 ::
 ++  read-wiki
-  |=  {art/tape wir/wire}
+  |=  {art/cord wir/wire}
   (read-wiki-at art wir da+now.hid)
 ::
 ++  read-wiki-at
-  |=  {art/tape wir/wire cas/case}
+  |=  {art/cord wir/wire cas/case}
   =+  pax=(relpath-from-article art)
   =+  ^-  rav/rave  [%sing %x cas pax]
   =+  ^-  rif/riff  [wiki-desk (some rav)]
   [ost.hid %warp wir [our.hid our.hid] rif]~
 ::
 ++  read-wiki-immediate
-  |=  art/tape
+  |=  art/cord
   ^-  delt
   =+  pax=(path-from-article art)
   =+  maybe=(file pax)
   ?~  maybe
     :: article doesn't exist, return a default structure
-    [(scow %p src.hid) now.hid "" art "" "0"]
+    =+  r=*delt
+    r(art art, ver '0')
   =+  v=(need maybe)
   ?.  ?=(@t v)
     ~|  %no-content
@@ -139,17 +142,19 @@
   |=  u/@t
   ^-  delt
   =+  [atr mud]=(parse:frontmatter (lore u))
-  =+  aut=(trip (need (~(get by atr) 'author')))
-  =+  at=(need (slaw %da (need (~(get by atr) 'at'))))
-  =+  art=(trip (need (~(get by atr) 'article')))
-  =+  ver=(trip (need (~(get by atr) 'version')))
+  =+  aut=(~(got by atr) 'author')
+  =+  at=(slav %da (~(got by atr) 'at'))
+  =+  art=(~(got by atr) 'article')
+  =+  ver=(~(got by atr) 'version')
+  =+  msg=(fall (~(get by atr) 'message') '')
   :*
     aut
     at
-    ""
+    ''
     art
-    (trip mud)
+    mud
     ver
+    msg
   ==
 ::
 ++  write-wiki
@@ -159,12 +164,7 @@
   %-  nule
   %+  print:frontmatter
     (article-header a)
-  %-  lune
-  %-  crip
-  :: add newline at end only if it doesn't already end with a newline
-  ?:  =((scag 1 (flop cot.a)) "\0a")
-    cot.a
-  (weld cot.a "\0a")
+  ~[cot.a]
 ::
 ++  write-md
   |=  {pax/path cot/cord}
@@ -266,7 +266,8 @@
   =+  arts=(~(tap by articles) ~)
   =+  arts2=(turn arts |=({p/@t q/*} [(unescape p) ~]))
   :_  +>.$
-  %+  turn  (pale hid (prix-and-src /wiki/article/list src.hid))
+  :: FIXME this should be sent to all clients (only) if cache was rebuilt
+  %+  turn  (pale hid (prix /wiki/article/list))
   |=({o/bone *} `move`[o %diff %json (jobe arts2)])
 ::
 ::  get directory listing (for md files) once
@@ -283,21 +284,19 @@
   atr
 ::
 ++  get-history
-  |=  art/tape
+  |=  art/cord
   ^-  (list move)
-  ~&  [%get-history art=art]
   =+  latest=(read-wiki-immediate art)
-  ~&  ver=ver.latest
-  ?:  =(ver.latest "0")
+  ?:  =(ver.latest '0')
     ~&  %no-history
     ~
-  =+  rev=(scan ver.latest dem:ag)
+  =+  rev=(rash ver.latest dem:ag)
   ::  look back for no more than 10 revision
   =+  min=?:((lte rev 10) 1 (sub rev 10))
   (get-history-for-rev art rev min ~)
 ::
 ++  get-history-for-rev
-  |=  {art/tape rev/@ud min/@ud labels/(unit (map @tas @ud))}
+  |=  {art/cord rev/@ud min/@ud labels/(unit (map @tas @ud))}
   ^-  (list move)
   ?:  (lth rev min)
     ~
@@ -306,7 +305,7 @@
     $(labels (some lab.dom))
   %-  welp  :_  $(rev (dec rev))
   :: check that the label exists
-  =+  label=(label-for-rev (escape-for-label (crip art)) rev)
+  =+  label=(label-for-rev (escape-for-label art) rev)
   ?~  (~(get by (need labels)) label)
     ~   ::TODO send default value
   (read-wiki-at art /article/history tas+label)
@@ -320,7 +319,6 @@
   |=  {art/@t ver/@ud}
   ^-  (list move)
   =+  label=(label-for-rev art ver)
-  ~&  label=label
   [ost.hid %info /wiki-label our.hid wiki-desk %| label]~
 ::
 :: filter by path prefix and event source

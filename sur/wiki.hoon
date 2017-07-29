@@ -1,12 +1,12 @@
 |%
 ++  delt
   $:
-    ::typ/type
-    aut/tape
+    aut/cord
     at/time
-    typ/tape
-    art/tape
-    cot/tape
-    ver/tape
+    typ/cord
+    art/cord
+    cot/cord
+    ver/cord
+    msg/cord
   ==
 --

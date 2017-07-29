@@ -7,23 +7,24 @@
   ++  json
     |=  jon/^json
     ^-  delt
-    :-  ~                                               :: author
-    :-  ~1970.1.1                                       :: date
+    :-  ''
+    :-  ~1970.1.1
     %-  need
     %.  jon
-    (ot type+sa article+sa content+sa version+sa ~):jo
+    (ot type+so article+so content+so version+so message+so ~):jo
   --
 ++  grow
   |%
   ++  json
     %-  jobe
     :*
-      [%author (jape aut.change)]
-      [%at (jode at.change)]
-      [%type (jape typ.change)]
-      [%article (jape art.change)]
-      [%content (jape cot.change)]
-      [%version (jape ver.change)]
+      [%author (jape (trip aut.change))]
+      [%at (jode ?:(=(at.change *@da) ~1970.1.1 at.change))]
+      [%type (jape (trip typ.change))]
+      [%article (jape (trip art.change))]
+      [%content (jape (trip cot.change))]
+      [%version (jape (trip ver.change))]
+      [%message (jape (trip msg.change))]
       ~
     ==
   --

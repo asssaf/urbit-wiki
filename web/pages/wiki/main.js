@@ -47,6 +47,7 @@ function load(article, version) {
     "article": article,
     "content": "",
     "version": version || "",
+    "message": ""
   })
 }
 
@@ -133,8 +134,11 @@ const Edit = {
         <textarea cols="80" rows="25" v-model="content" :disabled="loading" />
       </div>
       <div>
+        Change description: <input type="text" v-model.trim="message" />
+      </div>
+      <div>
         <button @click="preview">Preview</button>
-        <button @click="save" :disabled="loading || changedOnServer">Save</button>
+        <button @click="save" :disabled="saveDisabled">Save</button>
         <button @click="back(false)">Cancel</button>
       </div>
 
@@ -159,7 +163,21 @@ const Edit = {
       error: null,
       listenerKey: null,
       previewContent: null,
-      changedOnServer: false
+      changedOnServer: false,
+      message: ""
+    }
+  },
+  computed: {
+    saveDisabled: function() {
+      if (this.loading || this.changedOnServer) {
+        return true
+      }
+
+      if (this.message.length == 0) {
+        return true
+      }
+
+      return false
     }
   },
   created: function() {
@@ -201,6 +219,7 @@ const Edit = {
         "article": this.article,
         "content": this.content,
         "version": this.version,
+        "message": this.message,
       }, () => {
         this.back(true)
       })
@@ -295,6 +314,7 @@ const History = {
             <th>Version</th>
             <th>Date</th>
             <th>Author</th>
+            <th>Description</th>
           </tr>
         </thead>
 
@@ -303,6 +323,7 @@ const History = {
             <td><a @click.prevent="selected = rev" href="#">{{ rev.version }}</a></td>
             <td>{{ new Date(rev.at).toString() }}</td>
             <td>{{ rev.author }}</td>
+            <td>{{ rev.message }}</td>
           </tr>
         </tbody>
       </table>
