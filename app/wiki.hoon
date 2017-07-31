@@ -17,10 +17,23 @@
     {$wiki-change delt}
     {$json json}
   ==
+++  config
+  $%
+    {$serve d/desk}
+  ==
 --
-::
-|_  {hid/bowl articles/(list {@t $~}) initialized/_|}
+::::
+|_  {hid/bowl articles/(list {@t $~}) initialized/_| wiki-desk/_'home'}
 ::++  prep  _`.  :: wipe state when app code is changed
+::
+:: general configuration interface
+++  poke-noun
+  |=  a/config
+  ?-  a
+  {$serve *}
+    ~&  [%serving-from d.a]
+    [~ +>.$(wiki-desk d.a)]
+  ==
 ::
 :: save an updated wiki, or request
 ++  poke-wiki-change
@@ -67,9 +80,6 @@
   ?:  =(pax /list)
     (get-articles wiki-base-path-full)
   [~ +>.$]
-::
-++  wiki-desk
-  %home
 ::
 ++  wiki-base-path
   `path`/web/pages/wiki/pub

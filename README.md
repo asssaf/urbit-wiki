@@ -17,12 +17,25 @@ Copy everything into the pier:
 $ cp -av {app,mar,sur,web} /path/to/pier/home
 ```
 
-## Configure
-Not configurable yet
-
 ## Run
 ```
 dojo> |start %wiki
+```
+
+## Configure
+By default the wiki stores and serves files from the %home desk. You probably
+want to create a separate desk for the wiki. For example:
+
+### Create %wiki desk
+```
+dojo> |merge %wiki our %home
+merged with strategy %init
+```
+
+### Configure wiki to serve from the %wiki desk
+```
+dojo> :wiki [%serve %wiki]
+[%serving-from %wiki]
 ```
 
 ## Usage
