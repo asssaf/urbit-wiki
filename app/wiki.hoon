@@ -9,13 +9,17 @@
 ++  card
   $%
     {$info wire @p toro}
-    {$diff $wiki-change delt}
-    {$diff $json *}
+    {$diff drift}
     {$warp wire sock riff}
+  ==
+++  drift
+  $?
+    {$wiki-change delt}
+    {$json json}
   ==
 --
 ::
-|_  {hid/bowl articles/(map @t *) initialized/_|}
+|_  {hid/bowl articles/(list {@t $~}) initialized/_|}
 ::++  prep  _`.  :: wipe state when app code is changed
 ::
 :: save an updated wiki, or request
@@ -34,8 +38,7 @@
       (get-history-for-rev art.a r r ~)
     :: get latest (or empty if doesn't exist)
     =+  w=(read-wiki-immediate art.a)
-    %+  turn  (pale hid (prix-and-src /wiki/article/content src.hid))
-    |=({o/bone *} `move`[o %diff %wiki-change w])
+    (diff-by-src /wiki/article/content src.hid %wiki-change w)
   :: write request
   :: do a security check - only duke or better allowed
   ?.  ?=(?($czar $king $duke) (clan src.hid))
@@ -52,9 +55,8 @@
   :_  %+  weld
     (create-label (escape-for-label art.a) newver)
     :: since this is a write, notify all clients
-    %+  turn  (pale hid (prix /wiki/article/content))
     :: FIXME this doesn't contain the author and date of the change
-    |=({o/bone *} `move`[o %diff %wiki-change a(ver (scot %ud newver))])
+    (diff-by-path /wiki/article/content %wiki-change a(ver (scot %ud newver)))
   =+  pax=(path-from-article art.a)
   (write-wiki a(ver (scot %ud newver)) pax)
 ::
@@ -203,8 +205,7 @@
     [~ +>.$]
   =+  w=(parse-wiki u)
   :_  +>.$
-  %+  turn  (pale hid (prix-and-src (welp /wiki way) src.hid))
-  |=({o/bone *} `move`[o %diff %wiki-change w])
+  (diff-by-src (welp /wiki way) src.hid %wiki-change w)
 ::
 ++  escape-for-label
   |=  a/@t
@@ -240,30 +241,56 @@
   ~|  [%bad-sequence code=`@t`code]
   !!
 ::
+++  diff-by-path
+  |=  {pax/path d/drift}
+  %+  turn  (pale hid (prix pax))
+  |=({o/bone *} `move`[o %diff d])
+::
+++  diff-by-src
+  |=  {pax/path s/ship d/drift}
+  %+  turn  (pale hid (prix-and-src pax s))
+  |=({o/bone *} `move`[o %diff d])
+::
+++  diff-by-ost
+  |=  {d/drift}
+  [ost.hid %diff d]~
+::
 :: get cached article list, initialize if needed
 ++  get-articles
   |=  pax/path
   ^-  {(list move) _+>.$}
   ?.  initialized
     =.  initialized  &
-    =.  articles  %-  list-dir
-    pax
-    =+  res=$
-    [(welp -.res (watch-dir wiki-base-path)) +.res]
-  =+  arts=(~(tap by articles) ~)
-  =+  arts2=(turn arts |=({p/@t q/*} [(unescape p) ~]))
+    =.  articles  (list-dir-articles pax)
+    :_  +>.$
+    %+  welp  (watch-dir wiki-base-path)
+    :: since the cache was rebuilt, notify all subscribers
+    (diff-by-path /wiki/article/list %json (jobe articles))
   :_  +>.$
-  :: FIXME this should be sent to all clients (only) if cache was rebuilt
-  %+  turn  (pale hid (prix /wiki/article/list))
-  |=({o/bone *} `move`[o %diff %json (jobe arts2)])
+  :: since there was no change, notify only the event source
+  (diff-by-ost %json (jobe articles))
+::
+++  list-dir-articles
+  |=  pax/path
+  ^-  _articles
+  %+  murn  (~(tap by (list-dir pax)) ~)
+  |=  {p/@t q/*}
+  ?~  q
+    ~
+  (some [(unescape p) ~])
 ::
 ::  get directory listing (for md files) once
 ++  list-dir
   |=  pax/path
-  ^-  _articles
+  ^-  (map @t *)
   =+  ls=.^(arch %cy pax)
   %-  ~(urn by dir.ls)
   |=  {p/knot q/$~}
+  =+  subfil=.^(arch %cy (welp pax p ~))
+  ?~  ((soft (map @t *)) dir.subfil)
+    ~
+  ?.  (~(has by dir.subfil) %md)
+    ~
   =+  a=.^(noun cx+(welp pax [p] [%md] ~))
   ?.  ?=(@t a)
     ~
