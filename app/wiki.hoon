@@ -50,18 +50,6 @@
   ^-  {(list move) _+>.$}
   ~|  poked-with=a
   :_  +>.$
-  ?:  =(typ.a 'read')
-    :: read request - just return existing content
-    ?:  =(ver.a 'all')
-      (get-history art.a)
-    ?.  =(ver.a '')
-      :: get specific version
-      =+  r=(rash ver.a dem:ag)
-      (get-history-for-rev art.a r r ~)
-    :: get latest (or empty if doesn't exist)
-    =+  w=(read-wiki-immediate art.a)
-    (diff-by-src /wiki/article/content src.hid %wiki-change w)
-  :: write request
   :: do a security check - only duke or better allowed
   ?.  ?=(?($czar $king $duke) (clan src.hid))
     ~|  %duke-or-better-required
@@ -88,6 +76,15 @@
   ~&  [%subscribed-to pax=pax]
   ?:  =(pax /list)
     (get-articles wiki-base-path-full)
+  ?:  =(-.pax 'content')
+    =+  art=(woad (snag 1 pax))
+    =+  w=(read-wiki-immediate art)
+    :_  +>.$
+    (diff-by-ost %wiki-change w)
+  ?:  =(-.pax 'history')
+    =+  art=(woad (snag 1 pax))
+    :_  +>.$
+    (get-history art)
   [~ +>.$]
 ::
 ++  wiki-base-path

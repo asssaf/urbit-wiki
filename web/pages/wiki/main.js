@@ -13,8 +13,16 @@ function dropPath(path, callback) {
   window.urb.drop("/wiki/"  + path, callback)
 }
 
-function articlePath(path) {
-  return "article/" + path
+function articleContentPath(article) {
+  // escape illegal chars in the article name and add a unique suffix
+  // to prevent issues with duplicate subscriptions
+  return "article/content/" + escapePathElement(article) + "/" + Date.now()
+}
+
+function articleHistoryPath(article) {
+  // escape illegal chars in the article name and add a unique suffix
+  // to prevent issues with duplicate subscriptions
+  return "article/history/" + escapePathElement(article) + "/" + Date.now()
 }
 
 /**
@@ -67,16 +75,6 @@ function poke(article, callback) {
         }
       }
     })
-}
-
-function load(article, version) {
-  poke({
-    "type": "read",
-    "article": article,
-    "content": "",
-    "version": version || "",
-    "message": ""
-  })
 }
 
 function render(content) {
@@ -189,7 +187,7 @@ const Edit = {
       content: "loading...",
       version: null,
       error: null,
-      listenerKey: null,
+      boundPath: null,
       previewContent: null,
       changedOnServer: false,
       message: ""
@@ -209,18 +207,23 @@ const Edit = {
     }
   },
   created: function() {
-    this.listenerKey = this.$root.addArticleListener(this.accept)
-    load(this.article)
+    this.boundPath = articleContentPath(this.article)
+    bindPath(this.boundPath, this.accept)
   },
   destroyed: function() {
-    if (this.listenerKey) {
-      this.$root.removeArticleListener(this.listenerKey)
+    if (this.boundPath) {
+      dropPath(this.boundPath, this.accept)
     }
   },
-  beforeRouteUpdate: function(to, from, next) {
-    this.loading = true
-    load(to.params.article)
-    next()
+  watch: {
+    '$route' (to, from) {
+      if (this.boundPath) {
+        dropPath(this.boundPath, this.accept)
+      }
+      this.loading = true
+      this.boundPath = articleContentPath(this.article)
+      bindPath(this.boundPath, this.accept)
+    }
   },
   methods: {
     accept: function(err, dat) {
@@ -283,7 +286,7 @@ const View = {
       content: null,
       author: null,
       at: null,
-      listenerKey: null
+      boundPath: null
     }
   },
   computed: {
@@ -296,18 +299,23 @@ const View = {
     }
   },
   created: function() {
-    this.listenerKey = this.$root.addArticleListener(this.accept)
-    load(this.article)
+    this.boundPath = articleContentPath(this.article)
+    bindPath(this.boundPath, this.accept)
   },
   destroyed: function() {
-    if (this.listenerKey) {
-      this.$root.removeArticleListener(this.listenerKey)
+    if (this.boundPath) {
+      dropPath(this.boundPath, this.accept)
     }
   },
-  beforeRouteUpdate: function(to, from, next) {
-    this.loading = true
-    load(to.params.article)
-    next()
+  watch: {
+    '$route' (to, from) {
+      if (this.boundPath) {
+        dropPath(this.boundPath, this.accept)
+      }
+      this.loading = true
+      this.boundPath = articleContentPath(this.article)
+      bindPath(this.boundPath, this.accept)
+    }
   },
   methods: {
     accept: function(err, dat) {
@@ -381,6 +389,7 @@ const History = {
       listenerKey: null,
       revisionMap: {},
       revisions: [],
+      boundPath: null,
       selected: null,
       viewAs: "preview",
     }
@@ -391,19 +400,23 @@ const History = {
     },
   },
   created: function() {
-    bindPath("article/history", this.accept)
-    load(this.article, "all")
+    this.boundPath = articleHistoryPath(this.article)
+    bindPath(this.boundPath, this.accept)
   },
   destroyed: function() {
-    dropPath("article/history", this.accept)
+    if (this.boundPath) {
+      dropPath(this.boundPath, this.accept)
+    }
   },
   watch: {
     '$route' (to, from) {
-      dropPath("article/history", this.accept)
+      if (this.boundPath) {
+        dropPath(this.boundPath, this.accept)
+      }
       this.revisionMap = {}
       this.revisions = []
-      bindPath("article/history", this.accept)
-      load(to.params.article, "all")
+      this.boundPath = articleHistoryPath(this.article)
+      bindPath(this.boundPath, this.accept)
     }
   },
   methods: {
@@ -474,10 +487,8 @@ const app = new Vue({
   router,
   data: function() {
     return {
-      articleListeners: [],
       articles: [],
       articlesLoading: true,
-      id: 1
     }
   },
   computed: {
@@ -489,31 +500,15 @@ const app = new Vue({
     }
   },
   created: function() {
-    bindPath("article/content", this.accept)
     bindPath("article/list", this.acceptList)
   },
   destroyed: function() {
-    this.articleListeners = []
-    dropPath("article/content", this.accept)
     dropPath("article/list", this.acceptList)
   },
   methods: {
-    accept: function(err, dat) {
-      keys = Object.keys(this.articleListeners)
-      for (i in this.articleListeners) {
-        this.articleListeners[i](err, dat)
-      }
-    },
     acceptList: function(err, dat) {
       this.articles = Object.keys(dat.data)
       this.articlesLoading = false
     },
-    addArticleListener: function(callback) {
-      this.articleListeners["" + this.id] = callback
-      return this.id++
-    },
-    removeArticleListener: function(id) {
-      delete this.articleListeners["" + id]
-    }
   }
 }).$mount('#app')
