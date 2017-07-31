@@ -208,20 +208,7 @@
 ::
 ++  escape-for-label
   |=  a/@t
-  ^-  @tas
-  ?:  =(a '')
-    ''
-  =+  first=(end 3 1 a)
-  %-  cat
-  :-  3
-  :_  $(a (rsh 3 1 a))
-  ?:
-    ?|
-      &((gte first 'a') (lte first 'z'))
-      &((gte first '0') (lte first '9'))
-    ==
-    first
-  (cat 3 '-' (scot %ud first))
+  (wood a)
 ::
 ++  escape
   |=  a/@t

@@ -17,6 +17,34 @@ function articlePath(path) {
   return "article/" + path
 }
 
+/**
+ * escape illegal chars for subscription paths (wimilar to ++wood)
+ */
+function escapePathElement(s) {
+  var e = ""
+  var i = 0
+  for (i = 0; i< s.length; ++i) {
+    var c = s.charAt(i)
+    if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c == '-')) {
+      e += c
+
+    } else if (c == ' ') {
+      e += '.'
+
+    } else if (c == '.') {
+      e += '~.'
+
+    } else if (c == '~') {
+      e += '~~'
+
+    } else {
+      e += "~" + s.charCodeAt(i).toString(16) + "."
+    }
+  }
+
+  return e
+}
+
 function poke(article, callback) {
   window.urb.send(
     article,
