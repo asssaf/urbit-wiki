@@ -31,8 +31,16 @@
   |=  a/config
   ?-  a
   {$serve *}
+    ?:  =(d.a wiki-desk)
+      ~&  [%already-serving-from d.a]
+      [~ +>.$]
+    :: clear cached article list and unsubscribe from previous desk
     ~&  [%serving-from d.a]
-    [~ +>.$(wiki-desk d.a)]
+    =+  moves=(unwatch-dir wiki-base-path)
+    =.  wiki-desk  d.a
+    =.  initialized  |                                  :: invalidate cache
+    =+  res=(get-articles wiki-base-path-full)
+    [(welp moves -.res) +.res]
   ==
 ::
 :: save an updated wiki, or request
@@ -197,6 +205,17 @@
     :-  wiki-desk
     :-  ~
     [%next %y da+now.hid a]
+  ==
+::
+++  unwatch-dir
+  |=  a/path
+  ^-  (list move)
+  :~  :-  ost.hid
+    :^    %warp
+        /article/list
+      [our.hid our.hid]
+    :-  wiki-desk
+    ~
   ==
 ::
 ++  writ
