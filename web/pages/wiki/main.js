@@ -485,7 +485,7 @@ const app = new Vue({
       return window.urb.user
     },
     dukeOrBetter: function() {
-      return window.urb.user.length <= 7
+      return window.urb.user.length <= 13
     }
   },
   created: function() {
