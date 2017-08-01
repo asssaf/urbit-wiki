@@ -64,14 +64,14 @@
     !!
   :: increment version
   =+  newver=+((rash ver.w dem:ag))
+  =+  a=a(ver (scot %ud newver), at now.hid, aut (scot %p src.hid))
   %-  welp
   :_  %+  weld
     (create-label (escape-for-label art.a) newver)
     :: since this is a write, notify all clients
-    :: FIXME this doesn't contain the author and date of the change
-    (diff-by-path /wiki/article/content %wiki-change a(ver (scot %ud newver)))
+    (diff-by-path /wiki/article/content %wiki-change a)
   =+  pax=(path-from-article art.a)
-  (write-wiki a(ver (scot %ud newver)) pax)
+  (write-wiki a pax)
 ::
 ++  peer-wiki-article
   |=  pax/path
@@ -115,8 +115,8 @@
   %-  malt
   %-  limo
   :*
-    [%author (scot %p src.hid)]
-    [%at (scot %da now.hid)]
+    [%author aut.a]
+    [%at (scot %da at.a)]
     [%article art.a]
     [%version ver.a]
     [%message msg.a]
