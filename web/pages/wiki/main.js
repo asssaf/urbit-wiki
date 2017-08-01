@@ -85,7 +85,7 @@ function render(content) {
   for (i in parts) {
     if (i % 2 == 1) {
       var escaped = encodeURIComponent(parts[i])
-      content += "[" + parts[i] + "](wiki#/view/" + escaped + ")"
+      content += "[" + parts[i] + "](/pages/wiki#/view/" + escaped + ")"
 
     } else {
       content += parts[i]
