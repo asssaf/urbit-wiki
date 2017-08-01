@@ -29,6 +29,7 @@
 :: general configuration interface
 ++  poke-noun
   |=  a/config
+  ?>  (team our.hid src.hid)      :: don't allow strangers
   ?-  a
   {$serve *}
     ?:  =(d.a wiki-desk)
