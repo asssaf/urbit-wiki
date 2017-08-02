@@ -483,7 +483,7 @@ const router = new VueRouter({
 })
 
 
-const app = new Vue({
+var app = new Vue({
   router,
   data: function() {
     return {
