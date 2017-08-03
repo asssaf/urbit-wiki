@@ -466,12 +466,18 @@ Vue.component('nav-bar', {
 })
 
 
+const DEFAULT_TITLE = document.title
+
 const routes = [
   { name: 'default', path: '/', redirect: '/view/MainPage' },
-  { name: 'edit', path: '/edit/:article', component: Edit, props: true },
-  { name: 'view', path: '/view/:article', component: View, props: true },
-  { name: 'history', path: '/history/:article', component: History, props: true },
-  { name: 'all', path: '/all', component: AllArticles },
+  { name: 'edit', path: '/edit/:article', component: Edit, props: true,
+      meta: { title: "Edit {article}" } },
+  { name: 'view', path: '/view/:article', component: View, props: true,
+      meta: { title: "{article}" } },
+  { name: 'history', path: '/history/:article', component: History, props: true,
+      meta: { title: "History of {article}"} },
+  { name: 'all', path: '/all', component: AllArticles,
+      meta: { title: "All Articles"} },
 ]
 
 
@@ -479,6 +485,20 @@ const router = new VueRouter({
   routes // short for `routes: routes`
 })
 
+router.beforeEach((to, from, next) => {
+  var title = ""
+  if (to.meta.title) {
+    title = to.meta.title
+    for (param in to.params) {
+      title = title.replace('{' + param + '}', to.params[param])
+    }
+
+    title += " | "
+  }
+  title += DEFAULT_TITLE
+  document.title = title
+  next()
+})
 
 var app = new Vue({
   router,
