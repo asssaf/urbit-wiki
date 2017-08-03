@@ -95,6 +95,49 @@ function render(content) {
   return marked(content)
 }
 
+/**
+ * Mixin for components that need to subscribe to an urbit path
+ *
+ * The component must define a property (or a computed property) called
+ * 'urbitBindPath', and a callback method called 'urbitAccept'
+ *
+ * This path will be bound when the component is created and dropped when the
+ * component is destroyed.
+ * It will also be dropped and rebound when the route changes.
+ */
+var urbitSubscriptionMixin = {
+  data: function() {
+    return {
+      urbitBoundPath: null,
+    }
+  },
+  created: function() {
+    this.urbitBind()
+  },
+  destroyed: function() {
+    this.urbitDrop()
+  },
+  watch: {
+    '$route' (to, from) {
+      this.urbitDrop()
+      this.urbitBind()
+    }
+  },
+  methods: {
+    urbitBind: function() {
+      if (this.urbitBindPath) {
+        this.urbitBoundPath = this.urbitBindPath
+        bindPath(this.urbitBoundPath, this.urbitAccept)
+      }
+    },
+    urbitDrop: function() {
+      if (this.urbitBoundPath) {
+        dropPath(this.urbitBoundPath, this.urbitAccept)
+      }
+    }
+  }
+}
+
 
 const AllArticles = {
   template: `
@@ -147,6 +190,7 @@ const AllArticles = {
 
 
 const Edit = {
+  mixins: [ urbitSubscriptionMixin ],
   props: [ "article" ],
   template: `
     <div>
@@ -187,13 +231,16 @@ const Edit = {
       content: "loading...",
       version: null,
       error: null,
-      boundPath: null,
       previewContent: null,
       changedOnServer: false,
       message: ""
     }
   },
   computed: {
+    urbitBindPath: function() {
+      this.loading = true
+      return articleContentPath(this.article)
+    },
     saveDisabled: function() {
       if (this.loading || this.changedOnServer) {
         return true
@@ -206,27 +253,8 @@ const Edit = {
       return false
     }
   },
-  created: function() {
-    this.boundPath = articleContentPath(this.article)
-    bindPath(this.boundPath, this.accept)
-  },
-  destroyed: function() {
-    if (this.boundPath) {
-      dropPath(this.boundPath, this.accept)
-    }
-  },
-  watch: {
-    '$route' (to, from) {
-      if (this.boundPath) {
-        dropPath(this.boundPath, this.accept)
-      }
-      this.loading = true
-      this.boundPath = articleContentPath(this.article)
-      bindPath(this.boundPath, this.accept)
-    }
-  },
   methods: {
-    accept: function(err, dat) {
+    urbitAccept: function(err, dat) {
       if (dat.data.article != this.article) {
         return
       }
@@ -268,6 +296,7 @@ const Edit = {
 
 
 const View = {
+  mixins: [ urbitSubscriptionMixin ],
   props: [ "article" ],
   template: `
     <div>
@@ -286,10 +315,13 @@ const View = {
       content: null,
       author: null,
       at: null,
-      boundPath: null
     }
   },
   computed: {
+    urbitBindPath: function() {
+      this.loading = true
+      return articleContentPath(this.article)
+    },
     contentRendered: function() {
       if (this.content == null) {
         return "Loading..."
@@ -298,27 +330,8 @@ const View = {
       return render(this.content)
     }
   },
-  created: function() {
-    this.boundPath = articleContentPath(this.article)
-    bindPath(this.boundPath, this.accept)
-  },
-  destroyed: function() {
-    if (this.boundPath) {
-      dropPath(this.boundPath, this.accept)
-    }
-  },
-  watch: {
-    '$route' (to, from) {
-      if (this.boundPath) {
-        dropPath(this.boundPath, this.accept)
-      }
-      this.loading = true
-      this.boundPath = articleContentPath(this.article)
-      bindPath(this.boundPath, this.accept)
-    }
-  },
   methods: {
-    accept: function(err, dat) {
+    urbitAccept: function(err, dat) {
       if (dat.data.article != this.article) {
         return
       }
@@ -339,6 +352,7 @@ const View = {
 
 
 const History = {
+  mixins: [ urbitSubscriptionMixin ],
   props: [ "article" ],
   template: `
     <div>
@@ -386,41 +400,24 @@ const History = {
   `,
   data: function() {
     return {
-      listenerKey: null,
       revisionMap: {},
       revisions: [],
-      boundPath: null,
       selected: null,
       viewAs: "preview",
     }
   },
   computed: {
+    urbitBindPath: function() {
+      this.revisionMap = {}
+      this.revisions = []
+      return articleHistoryPath(this.article)
+    },
     contentRendered: function() {
       return render(this.selected.content)
     },
   },
-  created: function() {
-    this.boundPath = articleHistoryPath(this.article)
-    bindPath(this.boundPath, this.accept)
-  },
-  destroyed: function() {
-    if (this.boundPath) {
-      dropPath(this.boundPath, this.accept)
-    }
-  },
-  watch: {
-    '$route' (to, from) {
-      if (this.boundPath) {
-        dropPath(this.boundPath, this.accept)
-      }
-      this.revisionMap = {}
-      this.revisions = []
-      this.boundPath = articleHistoryPath(this.article)
-      bindPath(this.boundPath, this.accept)
-    }
-  },
   methods: {
-    accept: function(err, dat) {
+    urbitAccept: function(err, dat) {
       if (dat.data.ok || dat.data.article != this.article) {
         return
       }
