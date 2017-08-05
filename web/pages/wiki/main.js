@@ -197,7 +197,7 @@ const Edit = {
 
         <b-card v-if="previewContent" :show-header="true">
           <h2 slot="header">Preview</h2>
-          <div v-html="previewContent" />
+          <div class="rendered" v-html="previewContent" />
         </b-card>
       </b-card>
     </div>
