@@ -3,7 +3,7 @@
 ## Description
 Wiki for urbit
 
-![wiki demo](https://github.com/asssaf/urbit-wiki/raw/gif/wiki.gif "Wiki demo")
+![wiki demo](https://github.com/asssaf/urbit-wiki/raw/master/wiki.gif "Wiki demo")
 
 ## Install
 ### Makefile
