@@ -142,8 +142,6 @@ var urbitSubscriptionMixin = {
 const AllArticles = {
   template: `
     <div>
-      <nav-bar />
-
       <b-card class="mb-2" :show-header="true">
         <h1 slot="header">Articles</h1>
         <ul v-for="article in articles">
@@ -172,8 +170,6 @@ const Edit = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" :version="version" />
-
       <b-card class="mb-2" :show-header="true">
         <h1 slot="header">Edit {{ article }}</h1>
         <div>
@@ -281,10 +277,15 @@ const View = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" :editable="true" :author="author" :at="at" />
-
       <b-card class="mb-2" :show-header="true">
-        <h1 slot="header">{{ article }}</h1>
+        <div slot="header">
+          <h1>{{ article }}</h1>
+          <small v-if="author">
+            Last edit by: {{ author }}
+            (at: {{ at }})
+          </small>
+        </div>
+
         <div v-if="loading">
           Loading...
         </div>
@@ -303,6 +304,7 @@ const View = {
   computed: {
     urbitBindPath: function() {
       this.loading = true
+      this.author = null
       return articleContentPath(this.article)
     },
     contentRendered: function() {
@@ -339,8 +341,6 @@ const History = {
   props: [ "article" ],
   template: `
     <div>
-      <nav-bar :article="article" :history="true" />
-
       <b-card class="mb-2" :show-header="true">
         <h1 slot="header">History of {{ article }}</h1>
 
@@ -429,38 +429,45 @@ const History = {
   }
 }
 
+
 Vue.component('nav-bar', {
-  props: [ "article", "version", "editable", "history", "author", "at"],
   template: `
-  <small>
-    <router-link to="/">Home</router-link>
-    <span v-if="article">
-      | <router-link :to="{ name: 'all' }">All</router-link>
-      <span v-if="history">
-        | <router-link :to="{ name: 'view', params: {article: this.article} }">Latest</router-link>
-      </span>
-      <span v-else-if="!version || version != '0'">
-        | <router-link :to="{ name: 'history', params: { article: this.article} }">History</router-link>
-      </span>
-    </span>
-    <span v-if="editable">
-      |
-      <span v-if="$root.dukeOrBetter">
-        <a @click.prevent="edit" href="#">Edit</a>
-      </span>
-      <span v-else>
-        <span title="Duke rank (planet) or higher required to edit">Edit (?)</span>
-      </span>
-    </span>
-    <span v-if="author">
-      | Last edit by: {{ author }}
-      (at: {{ at }})
-    </span>
-  </small>
+    <b-nav>
+      <b-nav-item to="/">Home</b-nav-item>
+      <b-nav-item :to="{name: 'all'}">All</b-nav-item>
+      <div v-if="showEdit">
+        <b-nav-item v-if="!editAllowed" :disabled="true"
+            title="Duke rank (planet) or higher required to edit">
+          Edit <small>?</small>
+        </b-nav-item>
+
+        <b-nav-item v-else
+          :to="{name: 'edit', params: {article: this.article}}">
+        Edit
+        </b-nav-item>
+      </div>
+      <b-nav-item v-if="showHistory" :to="{name: 'history', params: {article: this.article}}">History</b-nav-item>
+      <b-nav-item v-if="showLatest" :to="{name: 'view', params: {article: this.article}}">Latest</b-nav-item>
+    </b-nav>
   `,
-  methods: {
-    edit: function() {
-      this.$router.push({ name: "edit", params: { article: this.article } })
+  computed: {
+    article: function() {
+      return this.$route.params['article']
+    },
+    showEdit: function() {
+      return this.article != null
+          && this.$route.name != 'edit'
+          && this.$route.name != 'history'
+    },
+    showHistory: function() {
+      return this.article != null
+          && this.$route.name != 'history'
+    },
+    showLatest: function() {
+      return this.$route.name == 'history'
+    },
+    editAllowed: function() {
+      return this.$root.dukeOrBetter
     }
   }
 })
@@ -502,6 +509,13 @@ router.beforeEach((to, from, next) => {
 
 var app = new Vue({
   router,
+  template: `
+    <div>
+      <nav-bar />
+
+      <router-view />
+    </div>
+  `,
   data: function() {
     return {
       articles: [],
