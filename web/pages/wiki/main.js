@@ -175,7 +175,7 @@ const Edit = {
         <div>
           <small>as ~{{ $root.user }}</small>
         </div>
-        <b-form-input :textarea="true" :cols="80" :rows="25" v-model="content" :disabled="loading"
+        <b-form-input :textarea="true" :cols="80" :rows="25" v-model="content" :disabled="loading || saving"
             placeholder="Enter wiki content here..." />
 
         <b-form-fieldset label="Change description">
@@ -200,12 +200,22 @@ const Edit = {
           <div class="rendered" v-html="previewContent" />
         </b-card>
       </b-card>
+
+      <!-- discard changes confirmation dialog -->
+      <b-modal ref="discardChangesModal" title="Unsaved Changes"
+          ok-title="Discard Changes" close-title="Cancel"
+          @ok="discardChanges">
+
+        You have unsaved changes. Are you sure you want to navigate away?
+      </b-modal>
     </div>
   `,
   data: function() {
     return {
       loading: true,
+      saving: false,
       content: "loading...",
+      loadedContent: null,
       version: null,
       error: null,
       previewContent: null,
@@ -219,7 +229,7 @@ const Edit = {
       return articleContentPath(this.article)
     },
     saveDisabled: function() {
-      if (this.loading || this.changedOnServer) {
+      if (this.loading || this.changedOnServer || this.saving) {
         return true
       }
 
@@ -228,6 +238,41 @@ const Edit = {
       }
 
       return false
+    },
+    changed: function() {
+      if (this.loading) {
+        return false
+      }
+
+      if (this.saving) {
+        return false
+      }
+
+      if (this.content != this.loadedContent || this.message != "") {
+        return true
+      }
+
+      return false
+    }
+  },
+  created: function() {
+    window.onbeforeunload = () => {
+      if (this.changed) {
+        return "You have unsaved changes. Are you sure you want to navigate away?";
+      }
+
+      return null
+    }
+  },
+  destroyed: function() {
+    window.onbeforeunload = null
+  },
+  beforeRouteLeave: function(to, from, next) {
+    if (this.confirmDiscardChanges()) {
+      next(false)
+
+    } else {
+      next()
     }
   },
   methods: {
@@ -242,6 +287,7 @@ const Edit = {
         return
       }
       this.content = dat.data.content
+      this.loadedContent = this.content
       this.version = dat.data.version
       this.loading = false
       this.changedOnServer = false
@@ -250,6 +296,7 @@ const Edit = {
       this.previewContent = render(this.content)
     },
     save: function() {
+      this.saving = true
       poke({
         "type": "write",
         "article": this.article,
@@ -267,6 +314,19 @@ const Edit = {
       } else {
         this.$router.push({ name: "view", params: { article: this.article } })
       }
+    },
+    confirmDiscardChanges: function() {
+      if (this.changed) {
+        this.$refs.discardChangesModal.show()
+        return true
+
+      } else {
+        return false
+      }
+    },
+    discardChanges: function() {
+      this.saving = true
+      this.back(false)
     }
   }
 }
