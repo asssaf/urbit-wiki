@@ -298,7 +298,6 @@ const Edit = {
     save: function() {
       this.saving = true
       poke({
-        "type": "write",
         "article": this.article,
         "content": this.content,
         "version": this.version,
