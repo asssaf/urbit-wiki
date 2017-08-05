@@ -144,46 +144,24 @@ const AllArticles = {
     <div>
       <nav-bar />
 
-      <h1>Articles</h1>
-      <div v-if="$root.dukeOrBetter">
-        <input v-model.trim="newArticle" />
-        <button @click="editNewArticle" :disabled="newArticleDisabled">New</button>
-      </div>
-      <div v-else>
-        <button title="Duke rank (planet) or higher required to create new articles" disabled="true">New</button>
-      </div>
-      <ul v-for="article in articles">
-        <li><router-link :to="{ name: 'view', params: { article: article } }">{{ article }}</router-link></li>
-      </ul>
-      <div v-if="loading">Loading...</div>
-      <div v-else-if="articles.length == 0">
-        No articles found
-      </div>
+      <b-card class="mb-2" :show-header="true">
+        <h1 slot="header">Articles</h1>
+        <ul v-for="article in articles">
+          <li><router-link :to="{ name: 'view', params: { article: article } }">{{ article }}</router-link></li>
+        </ul>
+        <div v-if="loading">Loading...</div>
+        <div v-else-if="articles.length == 0">
+          No articles found
+        </div>
+      </b-card>
     </div>
   `,
-  data: function() {
-    return  {
-      newArticle: "",
-    }
-  },
   computed: {
-    newArticleDisabled: function() {
-      if (this.newArticle.length == 0) {
-        return true
-      }
-
-      return false
-    },
     loading: function() {
       return this.$root.articlesLoading
     },
     articles: function() {
       return this.$root.articles
-    }
-  },
-  methods: {
-    editNewArticle: function() {
-      this.$router.push({ name: "edit", params: { article: this.newArticle } })
     }
   }
 }
@@ -196,33 +174,36 @@ const Edit = {
     <div>
       <nav-bar :article="article" :version="version" />
 
-      <h1>Edit {{ article }}</h1>
-      <div>
-        <small>as ~{{ $root.user }}</small>
-      </div>
-      <div>
-        <textarea cols="80" rows="25" v-model="content" :disabled="loading" />
-      </div>
-      <div>
-        Change description: <input type="text" v-model.trim="message" />
-      </div>
-      <div>
-        <button @click="preview">Preview</button>
-        <button @click="save" :disabled="saveDisabled">Save</button>
-        <button @click="back(false)">Cancel</button>
-      </div>
+      <b-card class="mb-2" :show-header="true">
+        <h1 slot="header">Edit {{ article }}</h1>
+        <div>
+          <small>as ~{{ $root.user }}</small>
+        </div>
+        <b-form-input :textarea="true" :cols="80" :rows="25" v-model="content" :disabled="loading"
+            placeholder="Enter wiki content here..." />
 
-      <div v-if="changedOnServer">
-        Warning: a newer version has been saved, you'll need to reload before
-        saving your changes
-      </div>
+        <b-form-fieldset label="Change description">
+          <b-form-input v-model.trim="message" placeholder="Describe your change" />
+        </b-form-fieldset>
 
-      <div>{{ error }}</div>
+        <b-button-group>
+          <button @click="preview" role="button" class="btn btn-secondary">Preview</button>
+          <button @click="save" role="button" class="btn btn-primary" :disabled="saveDisabled">Save</button>
+          <button @click="back(false)" role="button" class="btn btn-secondary">Cancel</button>
+        </b-button-group>
 
-      <div v-if="previewContent">
-        <h2>Preview</h2>
-        <div v-html="previewContent" style="border: 1px solid black" />
-      </div>
+        <div v-if="changedOnServer">
+          Warning: a newer version has been saved, you'll need to reload before
+          saving your changes
+        </div>
+
+        <div>{{ error }}</div>
+
+        <b-card v-if="previewContent" :show-header="true">
+          <h2 slot="header">Preview</h2>
+          <div v-html="previewContent" />
+        </b-card>
+      </b-card>
     </div>
   `,
   data: function() {
@@ -302,11 +283,13 @@ const View = {
     <div>
       <nav-bar :article="article" :editable="true" :author="author" :at="at" />
 
-      <h1>{{ article }}</h1>
-      <div v-if="loading">
-        Loading...
-      </div>
-      <div v-else v-html="contentRendered" />
+      <b-card class="mb-2" :show-header="true">
+        <h1 slot="header">{{ article }}</h1>
+        <div v-if="loading">
+          Loading...
+        </div>
+        <div v-else v-html="contentRendered" />
+      </b-card>
     </div>
   `,
   data: function() {
@@ -357,45 +340,34 @@ const History = {
   template: `
     <div>
       <nav-bar :article="article" :history="true" />
-      <h1>History of {{ article }}</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Version</th>
-            <th>Date</th>
-            <th>Author</th>
-            <th>Description</th>
-          </tr>
-        </thead>
 
-        <tbody>
-          <tr v-for="rev in revisions" :style="rev == selected ? 'background: grey': ''" @click="selected = rev">
-            <td><a @click.prevent="selected = rev" href="#">{{ rev.version }}</a></td>
-            <td>{{ new Date(rev.at).toString() }}</td>
-            <td>{{ rev.author }}</td>
-            <td>{{ rev.message }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <b-card class="mb-2" :show-header="true">
+        <h1 slot="header">History of {{ article }}</h1>
 
-      <div v-if="selected">
-        <div>
-          View as:
-          <input type="radio" id="view-source" value="source" v-model="viewAs" />
-          <label for="view-source">Source</label>
-          <input type="radio" id="view-preview" value="preview" v-model="viewAs" />
-          <label for="view-preview">Preview</label>
+        <b-table striped hover :items="revisions" :fields="fields" @row-clicked="rowClicked">
+          <template slot="at" scope="data">
+           {{ new Date(data.value).toString() }}
+         </template>
+        </b-table>
+
+        <div v-if="selected">
+          <b-form-fieldset label="View as:">
+            <b-form-radio v-model="viewAs" :options="options" />
+          </b-form-fieldset>
+
+          <b-card class="mb-2" :show-header="true">
+            <h2 slot="header">Version {{selected.version}}</h2>
+
+            <div v-if="viewAs == 'preview'">
+              <div v-html="contentRendered"  />
+            </div>
+            <div v-else>
+              <b-form-input :textarea="true" v-model="selected.content"
+                  :readonly="true" :cols="80" :rows="20" />
+            </div>
+          </b-card>
         </div>
-
-        <h1>Version {{selected.version}}</h1>
-
-        <div v-if="viewAs == 'preview'" style="border: 1px black solid">
-          <div v-html="contentRendered"  />
-        </div>
-        <div v-else>
-           <textarea v-model="selected.content" disabled="true" cols="80" rows="20" />
-        </div>
-      </div>
+      </b-card>
     </div>
   `,
   data: function() {
@@ -403,7 +375,27 @@ const History = {
       revisionMap: {},
       revisions: [],
       selected: null,
+      selectedIndex: -1,
       viewAs: "preview",
+      options: [
+        { text: "Source", value: "source" },
+        { text: "Preview", value: "preview" },
+      ],
+      fields: {
+        version: {
+          label: "Version",
+        },
+        at: {
+          label: "Date",
+        },
+        author: {
+          label: "Author",
+        },
+        message: {
+          label: "Description",
+        },
+
+      }
     }
   },
   computed: {
@@ -425,6 +417,14 @@ const History = {
         this.revisionMap[dat.data.version] = dat.data
         this.revisions.push(dat.data)
       }
+    },
+    rowClicked: function(item, index) {
+      if (this.selectedIndex > -1) {
+        this.revisions[this.selectedIndex]._rowVariant = null;
+      }
+      this.selected = item
+      this.selectedIndex = index
+      this.revisions[index]._rowVariant = 'info'
     }
   }
 }
