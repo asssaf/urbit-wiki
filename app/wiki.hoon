@@ -60,7 +60,7 @@
     ~|  %version-check-failed
     !!
   :: increment version
-  =+  newver=+((rash ver.w dem:ag))
+  =+  newver=(get-next-version (escape-for-label art.w) +((rash ver.w dem:ag)))
   =+  a=a(ver (scot %ud newver), at now.hid, aut (scot %p src.hid))
   %-  welp
   :_  %+  weld
@@ -373,7 +373,22 @@
   |=  {art/@t ver/@ud}
   ^-  (list move)
   =+  label=(label-for-rev art ver)
+  :: check that label doesn't exist yet
+  =+  dom=.^(dome cv+wiki-base-path-full)
+  ?^  (~(get by lab.dom) label)
+    ~|  [%label-already-exists label=label]
+    !!
   [ost.hid %info /wiki-label our.hid wiki-desk %| label]~
+::
+:: check if the label for the next version is not taken, otherwise increment
+++  get-next-version
+  |=  {art/@t ver/@ud}
+  =+  dom=.^(dome cv+wiki-base-path-full)
+  |-
+  =+  label=(label-for-rev art ver)
+  ?^  (~(get by lab.dom) label)
+    $(ver +(ver))
+  ver
 ::
 :: filter by path prefix and event source
 ++  prix-and-src
