@@ -289,7 +289,7 @@ const View = {
         <div v-if="loading">
           Loading...
         </div>
-        <div v-else v-html="contentRendered" />
+        <div v-else class="rendered" v-html="contentRendered" />
       </b-card>
     </div>
   `,
@@ -359,7 +359,7 @@ const History = {
             <h2 slot="header">Version {{selected.version}}</h2>
 
             <div v-if="viewAs == 'preview'">
-              <div v-html="contentRendered"  />
+              <div class="rendered" v-html="contentRendered"  />
             </div>
             <div v-else>
               <b-form-input :textarea="true" v-model="selected.content"
