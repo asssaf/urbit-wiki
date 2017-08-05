@@ -4,7 +4,7 @@
     ;script(type "text/javascript", src "/~/at/lib/js/urb.js");
     ;script(type "text/javascript", src "/pages/wiki/vue/vue.js");
     ;script(type "text/javascript", src "/pages/wiki/vue-router/vue-router.js");
-    ;script(type "text/javascript", src "/pages/marked/marked.min.js");
+    ;script(type "text/javascript", src "/pages/wiki/marked/marked.min.js");
     ;title:"Wiki"
     ;style(type "text/css")
       ; #pass-cont { display: none; }
