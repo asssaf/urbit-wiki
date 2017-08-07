@@ -30,7 +30,7 @@
   hid/bowl
   articles/(list {@t $~})
   initialized/_|
-  wiki-desk/_'wiki'
+  wiki-desk/_'home'
   rag/(map wire history-callback-state)
 ==
 ::++  prep  _`.  :: wipe state when app code is changed
