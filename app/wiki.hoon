@@ -15,15 +15,24 @@
 ++  drift
   $?
     {$wiki-change delt}
+    {$wiki-articles (list delt)}
     {$json json}
   ==
 ++  config
   $%
     {$serve d/desk}
   ==
+++  history-callback-state
+  {art/cord rev/@ud min/@ud res/(list delt)}
 --
-::::
-|_  {hid/bowl articles/(list {@t $~}) initialized/_| wiki-desk/_'home'}
+::
+|_  $:
+  hid/bowl
+  articles/(list {@t $~})
+  initialized/_|
+  wiki-desk/_'wiki'
+  rag/(map wire history-callback-state)
+==
 ::++  prep  _`.  :: wipe state when app code is changed
 ::
 :: general configuration interface
@@ -82,9 +91,7 @@
     :_  +>.$
     (diff-by-ost %wiki-change w)
   ?:  =(-.pax 'history')
-    =+  art=(woad (snag 1 pax))
-    :_  +>.$
-    (get-history art)
+    (get-history (snag 1 pax))
   [~ +>.$]
 ::
 ++  wiki-base-path
@@ -220,18 +227,8 @@
   ?:  =(way /article/list)
     =.  initialized  |                                  :: invalidate cache
     (get-articles wiki-base-path-full)
-  :: content/history query result
-  ?~  rot
-    [~ +>.$]
-  =+  a=(need rot)
-  =+  p=q.a
-  =+  u=q.q.r.a
-  ?.  ?=(@t u)
-    ~&  %no-content
-    [~ +>.$]
-  =+  w=(parse-wiki u)
-  :_  +>.$
-  (diff-by-src (welp /wiki way) src.hid %wiki-change w)
+  :: history query result
+  (history-callback way rot)
 ::
 ++  escape-for-label
   |=  a/@t
@@ -337,31 +334,63 @@
   atr
 ::
 ++  get-history
-  |=  art/cord
-  ^-  (list move)
+  |=  pax/knot
+  ^-  (quip move +>)
+  =+  way=/article/history/[pax]
+  =+  art=(woad pax)
   =+  latest=(read-wiki-immediate art)
   ?:  =(ver.latest '0')
-    ~&  %no-history
-    ~
+    (history-finish way)
   =+  rev=(rash ver.latest dem:ag)
   ::  look back for no more than 10 revision
   =+  min=?:((lte rev 10) 1 (sub rev 10))
-  (get-history-for-rev art rev min ~)
+  =+  hist=[art rev min ~]
+  (get-history-next way hist)
+::
+++  get-history-next
+  |=  {way/wire hist/history-callback-state}
+  =.  rag
+  (~(put by rag) way hist)
+  (get-history-for-rev way art.hist rev.hist)
+::
+++  history-callback
+  |=  {way/wire rot/riot}
+  ^-  (quip move +>)
+  =+  his=(~(got by rag) way)
+  =+  a=(need rot)
+  =+  p=q.a
+  =+  u=q.q.r.a
+  ?.  ?=(@t u)
+    ~&  %no-content
+    (history-finish way)
+  =+  w=(parse-wiki u)
+  =+  res=(welp res.his ~[w])
+  ?:  =(rev.his min.his)
+    :: finished - return result
+    (history-finish way)
+  =+  rev=(dec rev.his)
+  (get-history-next way his(rev rev, res res))
+  ::~
+++  history-finish
+  |=  way/wire
+  ^-  (quip move +>)
+  =+  his=(~(get by rag) way)
+  =+  res=?~(his ~ res:(need his))
+  =.  rag  (~(del by rag) way)
+  :_  +>.$
+  (diff-by-src (welp /wiki way) src.hid %wiki-articles `(list delt)`res)
 ::
 ++  get-history-for-rev
-  |=  {art/cord rev/@ud min/@ud labels/(unit (map @tas @ud))}
-  ^-  (list move)
-  ?:  (lth rev min)
-    ~
-  ?~  labels
-    =+  dom=.^(dome cv+wiki-base-path-full)
-    $(labels (some lab.dom))
-  %-  welp  :_  $(rev (dec rev))
+  |=  {way/wire art/cord rev/@ud}
+  ^-  (quip move +>)
+  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  labels=lab.dom
   :: check that the label exists
   =+  label=(label-for-rev (escape-for-label art) rev)
-  ?~  (~(get by (need labels)) label)
-    ~   ::TODO send default value
-  (read-wiki-at art /article/history tas+label)
+  ?~  (~(get by labels) label)
+    (history-finish way)
+  :_  +>.$
+  (read-wiki-at art way tas+label)
 ::
 ++  label-for-rev
   |=  {art/@t ver/@ud}

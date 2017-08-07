@@ -403,35 +403,42 @@ const History = {
       <b-card class="mb-2" :show-header="true">
         <h1 slot="header">History of {{ article }}</h1>
 
-        <b-table striped hover :items="revisions" :fields="fields" @row-clicked="rowClicked">
-          <template slot="at" scope="data">
-           {{ new Date(data.value).toString() }}
-         </template>
-        </b-table>
+        <div v-if="loading">
+          Loading...
+        </div>
 
-        <div v-if="selected">
-          <b-form-fieldset label="View as:">
-            <b-form-radio v-model="viewAs" :options="options" />
-          </b-form-fieldset>
+        <div v-else>
+          <b-table striped hover :items="revisions" :fields="fields" @row-clicked="rowClicked"
+              :show-empty="true" empty-text="No revisions found">
+            <template slot="at" scope="data">
+             {{ new Date(data.value).toString() }}
+           </template>
+          </b-table>
 
-          <b-card class="mb-2" :show-header="true">
-            <h2 slot="header">Version {{selected.version}}</h2>
+          <div v-if="selected">
+            <b-form-fieldset label="View as:">
+              <b-form-radio v-model="viewAs" :options="options" />
+            </b-form-fieldset>
 
-            <div v-if="viewAs == 'preview'">
-              <div class="rendered" v-html="contentRendered"  />
-            </div>
-            <div v-else>
-              <b-form-input :textarea="true" v-model="selected.content"
-                  :readonly="true" :cols="80" :rows="20" />
-            </div>
-          </b-card>
+            <b-card class="mb-2" :show-header="true">
+              <h2 slot="header">Version {{selected.version}}</h2>
+
+              <div v-if="viewAs == 'preview'">
+                <div class="rendered" v-html="contentRendered"  />
+              </div>
+              <div v-else>
+                <b-form-input :textarea="true" v-model="selected.content"
+                    :readonly="true" :cols="80" :rows="20" />
+              </div>
+            </b-card>
+          </div>
         </div>
       </b-card>
     </div>
   `,
   data: function() {
     return {
-      revisionMap: {},
+      loading: true,
       revisions: [],
       selected: null,
       selectedIndex: -1,
@@ -459,7 +466,9 @@ const History = {
   },
   computed: {
     urbitBindPath: function() {
-      this.revisionMap = {}
+      this.loading = true
+      this.selected = null
+      this.selectedIndex = -1
       this.revisions = []
       return articleHistoryPath(this.article)
     },
@@ -469,13 +478,12 @@ const History = {
   },
   methods: {
     urbitAccept: function(err, dat) {
-      if (dat.data.ok || dat.data.article != this.article) {
+      if (dat.data.ok) {
         return
       }
-      if (!this.revisionMap[dat.data.version]) {
-        this.revisionMap[dat.data.version] = dat.data
-        this.revisions.push(dat.data)
-      }
+
+      this.revisions = dat.data
+      this.loading = false
     },
     rowClicked: function(item, index) {
       if (this.selectedIndex > -1) {
