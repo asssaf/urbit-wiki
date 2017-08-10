@@ -22,8 +22,8 @@
   $%
     {$serve d/desk}
   ==
-++  history-callback-state
-  {art/cord rev/@ud min/@ud res/(list delt)}
+++  callback-state
+   {todo/(set wire) done/(list delt)}
 --
 ::
 |_  $:
@@ -31,7 +31,7 @@
   articles/(list {@t $~})
   initialized/_|
   wiki-desk/_'home'
-  rag/(map wire history-callback-state)
+  cabs/(map wire callback-state)
 ==
 ::++  prep  _`.  :: wipe state when app code is changed
 ::
@@ -340,56 +340,67 @@
   =+  art=(woad pax)
   =+  latest=(read-wiki-immediate art)
   ?:  =(ver.latest '0')
-    (history-finish way)
+    (history-finish way ~)
+  =+  done=~[latest]
+  ?:  =(ver.latest '1')
+    (history-finish way done)
   =+  rev=(rash ver.latest dem:ag)
   ::  look back for no more than 10 revision
-  =+  min=?:((lte rev 10) 1 (sub rev 10))
-  =+  hist=[art rev min ~]
-  (get-history-next way hist)
+  =+  min=?:((lte rev 9) 1 (sub rev 9))
+  =+  revisions=(gulf min (dec rev))
+  =/  todo-map
+  %-  malt
+  %+  murn  revisions
+  |=  rev/@ud
+  =+  subway=(welp way /[(scot %ud rev)])
+  =+  moves=(get-history-for-rev subway art rev)
+  ?~  moves
+    ~
+  (some [subway moves])
+  =+  todo=~(key by todo-map)
+  ?~  todo
+    (history-finish way done)
+  :-  (zing ~(val by todo-map))
+  +>.$(cabs (~(put by cabs) way [todo done]))
 ::
-++  get-history-next
-  |=  {way/wire hist/history-callback-state}
-  =.  rag
-  (~(put by rag) way hist)
-  (get-history-for-rev way art.hist rev.hist)
+++  history-finish
+  |=  {way/wire res/(list delt)}
+  :_  +>.$
+  (diff-by-src (welp /wiki way) src.hid %wiki-articles (flop (sort res dor)))
 ::
 ++  history-callback
   |=  {way/wire rot/riot}
   ^-  (quip move +>)
-  =+  his=(~(got by rag) way)
+  =+  par=(scag (dec (lent way)) way)
+  =+  cab=(~(got by cabs) par)
+  =/  done
+  %+  welp  done.cab
   =+  a=(need rot)
   =+  p=q.a
   =+  u=q.q.r.a
   ?.  ?=(@t u)
     ~&  %no-content
-    (history-finish way)
+    ~
   =+  w=(parse-wiki u)
-  =+  res=(welp res.his ~[w])
-  ?:  =(rev.his min.his)
-    :: finished - return result
-    (history-finish way)
-  =+  rev=(dec rev.his)
-  (get-history-next way his(rev rev, res res))
-  ::~
-++  history-finish
-  |=  way/wire
-  ^-  (quip move +>)
-  =+  his=(~(get by rag) way)
-  =+  res=?~(his ~ res:(need his))
-  =.  rag  (~(del by rag) way)
-  :_  +>.$
-  (diff-by-src (welp /wiki way) src.hid %wiki-articles `(list delt)`res)
+  ~[w]
+  :: remove from todo set
+  =+  todo=(~(del in todo.cab) way)
+  ?~  todo
+    :: finished all todo for this callback
+    =.  cabs  (~(del by cabs) par)
+    (history-finish par done)
+  :-  ~
+  +>.$(cabs (~(put by cabs) par [todo done]))
 ::
 ++  get-history-for-rev
   |=  {way/wire art/cord rev/@ud}
-  ^-  (quip move +>)
+  ^-  (list move)
   =+  dom=.^(dome cv+wiki-base-path-full)
   =+  labels=lab.dom
   :: check that the label exists
   =+  label=(label-for-rev (escape-for-label art) rev)
   ?~  (~(get by labels) label)
-    (history-finish way)
-  :_  +>.$
+    ~
   (read-wiki-at art way tas+label)
 ::
 ++  label-for-rev
