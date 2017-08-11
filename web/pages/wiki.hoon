@@ -8,13 +8,13 @@
     ;script(type "text/javascript", src "/~/at/lib/js/urb.js");
     ;script(type "text/javascript", src "/pages/wiki/vue/vue.js");
     ;script(type "text/javascript", src "/pages/wiki/vue-router/vue-router.js");
-    ;script(type "text/javascript", src "//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js");
+    ;script(type "text/javascript", src "//unpkg.com/bootstrap-vue@0.18.0/dist/bootstrap-vue.js");
     ;script(type "text/javascript", src "/pages/wiki/marked/marked.min.js");
 
     ;title:"Wiki"
 
-    ;link(type "text/css", rel "stylesheet", href "//unpkg.com/bootstrap@next/dist/css/bootstrap.min.css");
-    ;link(type "text/css", rel "stylesheet", href "//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css");
+    ;link(type "text/css", rel "stylesheet", href "//unpkg.com/bootstrap@4.0.0-alpha.6/dist/css/bootstrap.min.css");
+    ;link(type "text/css", rel "stylesheet", href "//unpkg.com/bootstrap-vue@0.18.0/dist/bootstrap-vue.css");
     ;link(type "text/css", rel "stylesheet", href "/pages/wiki/wiki.css");
   ==
   ;body
