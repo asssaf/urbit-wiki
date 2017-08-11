@@ -97,7 +97,7 @@
     :_  +>.$
     (diff-by-ost %wiki-change w)
   ?:  =(-.pax 'history')
-    (get-history (snag 1 pax))
+    (get-history (slag 1 pax))
   [~ +>.$]
 ::
 ++  wiki-base-path
@@ -340,10 +340,10 @@
   atr
 ::
 ++  get-history
-  |=  pax/knot
+  |=  pax/path
   ^-  (quip move +>)
-  =+  way=/article/history/[pax]
-  =+  art=(woad pax)
+  =+  way=(weld `path`/article/history pax)
+  =+  art=(woad -.pax)
   =+  latest=(read-wiki-immediate art)
   ?:  =(ver.latest '0')
     (history-finish way ~)
@@ -351,8 +351,12 @@
   ?:  =(ver.latest '1')
     (history-finish way done)
   =+  rev=(rash ver.latest dem:ag)
+  =/  min
+  ?~  +.pax
+    :: get all history
+    1
   ::  look back for no more than 10 revision
-  =+  min=?:((lte rev 9) 1 (sub rev 9))
+  ?:((lte rev 9) 1 (sub rev 9))
   =+  revisions=(gulf min (dec rev))
   =/  todo-map
   %-  malt
