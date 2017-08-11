@@ -376,7 +376,7 @@
 ++  history-finish
   |=  {way/wire res/(list delt)}
   :_  +>.$
-  (diff-by-src (welp /wiki way) src.hid %wiki-articles (flop (sort res dor)))
+  (diff-by-ost %wiki-articles (flop (sort res dor)))
 ::
 ++  history-callback
   |=  {way/wire rot/riot}
