@@ -11,6 +11,8 @@
     {$info wire @p toro}
     {$diff drift}
     {$warp wire sock riff}
+    {$peer wire {@p term} path}
+    {$pull wire {@p term} $~}
   ==
 ++  drift
   $?
@@ -21,6 +23,7 @@
 ++  config
   $%
     {$serve d/desk}
+    {$export pax/path}
   ==
 ++  callback-state
    {todo/(set wire) done/(list delt)}
@@ -51,6 +54,9 @@
     =.  initialized  |                                  :: invalidate cache
     =+  res=(get-articles wiki-base-path-full)
     [(welp moves -.res) +.res]
+  {$export *}
+    ~&  [%export pax=pax.a]
+    (export pax.a)
   ==
 ::
 :: save an updated wiki, or request
@@ -428,6 +434,57 @@
   ?^  (~(get by lab.dom) label)
     $(ver +(ver))
   ver
+::
+++  export
+  |=  pax/path
+  ^-  (quip move +>)
+  =+  way=/export/[(wood (spat pax))]
+  =/  todo-map
+  %-  malt
+  %+  murn  (~(tap by (list-dir wiki-base-path-full)) ~)
+  |=  {p/@t q/*}
+  ?~  q
+    ~
+  =+  art=(wood (unescape p))
+  =+  subway=(welp way /[art])
+  %-  some
+  :-  subway
+  [ost.hid %peer subway [our.hid %wiki] /wiki/article/history/[art]]~
+  =+  todo=~(key by todo-map)
+  ?~  todo
+    ~&  %nothing-to-export
+    [~ +>.$]
+  :-  (zing ~(val by todo-map))
+  +>.$(cabs (~(put by cabs) way [todo ~]))
+::
+++  diff-wiki-articles
+  |=  {way/wire articles/(list delt)}
+  ^-  (quip move +>)
+  =+  par=(scag (dec (lent way)) way)
+  =+  cab=(~(got by cabs) par)
+  =+  done=(weld done.cab articles)
+  =+  todo=(~(del in todo.cab) way)
+  =+  pull=[ost.hid %pull way [our.hid %wiki] ~]
+  ?~  todo
+    :-  (welp ~[pull] (export-finish way done))
+    +>.$(cabs (~(del by cabs) par))
+  :-  ~[pull]
+  +>.$(cabs (~(put by cabs) par [todo done]))
+::
+++  export-finish
+  |=  {way/wire articles/(list delt)}
+  ^-  (list move)
+  =+  pax=(stab (woad (snag 1 way)))
+  =+  wr=(foal pax [%wiki-articles !>(articles)])
+  [ost.hid %info /writing our.hid wr]~
+::
+++  reap
+  |=  {wir/wire error/(unit tang)}
+  ^-  {(list move) _+>.$}
+  ?~  error
+    [~ +>.$]
+  ~|  [%subscription-failed error]
+  [~ +>.$]
 ::
 :: filter by path prefix and event source
 ++  prix-and-src
