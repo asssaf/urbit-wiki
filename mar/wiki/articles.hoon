@@ -2,9 +2,18 @@
 [wiki .]
 !:
 |_  {articles/(list delt)}
+++  grab
+  |%
+  ++  noun  (list delt)
+  ++  mime  |=(^mime (json (rash q.q apex:poja)))
+  ++  json
+    |=  jon/^json
+    ^-  (list delt)
+    (need ((ar (ot author+so at+di article+so content+so version+so message+so ~)):jo jon))
+  --
 ++  grow
   |%
-  ++  mime  [/text/json (taco (crip (pojo json)))]
+  ++  mime  [/text/wiki-articles (taco (crip (pojo json)))]
   ++  json
     :-  %a
     %+  turn  articles

@@ -24,9 +24,13 @@
   $%
     {$serve d/desk}
     {$export pax/path}
+    {$import pax/path}
   ==
 ++  callback-state
-   {todo/(set wire) done/(list delt)}
+  $%
+    {$query todo/(set wire) done/(list delt)}
+    {$import todo/(jar cord delt)}
+  ==
 --
 ::
 |_  $:
@@ -57,6 +61,9 @@
   {$export *}
     ~&  [%export pax=pax.a]
     (export pax.a)
+  {$import *}
+    ~&  [%import pax=pax.a]
+    (import pax.a)
   ==
 ::
 :: save an updated wiki, or request
@@ -77,13 +84,7 @@
   :: increment version
   =+  newver=(get-next-version (escape-for-label art.w) +((rash ver.w dem:ag)))
   =+  a=a(ver (scot %ud newver), at now.hid, aut (scot %p src.hid))
-  %-  welp
-  :_  %+  weld
-    (create-label (escape-for-label art.a) newver)
-    :: since this is a write, notify all clients
-    (diff-by-path /wiki/article/content %wiki-change a)
-  =+  pax=(path-from-article art.a)
-  (write-wiki a pax)
+  (write-new-wiki-version [a newver]~)
 ::
 ++  peer-wiki-article
   |=  pax/path
@@ -149,9 +150,11 @@
 ++  read-wiki-at
   |=  {art/cord wir/wire cas/case}
   =+  pax=(relpath-from-article art)
-  =+  ^-  rav/rave  [%sing %x cas pax]
-  =+  ^-  rif/riff  [wiki-desk (some rav)]
-  [ost.hid %warp wir [our.hid our.hid] rif]~
+  (read wir [%sing %x cas pax])
+::
+++  read
+  |=  {wir/wire rav/rave}
+  [ost.hid %warp wir [our.hid our.hid] [wiki-desk (some rav)]]~
 ::
 ++  read-wiki-immediate
   |=  art/cord
@@ -187,23 +190,54 @@
     msg
   ==
 ::
-++  write-wiki
-  |=  {a/delt pax/path}
+:: write a wiki version, create a label and notify subscribers
+++  write-new-wiki-version
+  |=  items/(list {a/delt ver/@ud})
   ^-  (list move)
-  %+  write-md  pax
+  %-  welp
+  :_
+    %-  zing
+    %+  turn  items
+    |=  {a/delt ver/@ud}
+    %+    weld
+      (create-label (escape-for-label art.a) ver)
+    :: since this is a write, notify all clients
+    (diff-by-path /wiki/article/content %wiki-change a)
+  %-  write-wiki
+  %+  turn  items
+  |=  {a/delt ver/@ud}
+  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  pax=(path-from-article-at art.a ud+let.dom)
+  [a pax]
+::
+++  write-wiki
+  |=  items/(list {a/delt pax/path})
+  ^-  (list move)
+  %-  write-md
+  %+  turn  items
+  |=  {a/delt pax/path}
+  :-  pax
   %-  nule
   %+  print:frontmatter
     (article-header a)
   ~[cot.a]
 ::
 ++  write-md
+  |=  items/(list {pax/path cot/cord})
+  %-  write
+  %+  turn  items
   |=  {pax/path cot/cord}
-  (write pax [%md !>(cot)])
+  [pax [%md !>(cot)]]
 ::
 ++  write
+  |=  items/(list {pax/path val/cage})
+  ^-  (list move)
+  =/  wr
+  %+  turn  items
   |=  {pax/path val/cage}
-  =+  wr=(foal pax val)
-  [ost.hid %info /writing our.hid wr]~
+  ?>  ?=({* * * *} pax)
+  [t.t.t.pax (feel pax val)]
+  [ost.hid %info /writing our.hid wiki-desk %& wr]~
 ::
 ++  watch-dir
   |=  a/path
@@ -233,6 +267,8 @@
   ?:  =(way /article/list)
     =.  initialized  |                                  :: invalidate cache
     (get-articles wiki-base-path-full)
+  ?:  =(way /import)
+    (import-callback way rot)
   :: history query result
   (history-callback way rot)
 ::
@@ -251,7 +287,7 @@
       &((gte first '0') (lte first '9'))
     ==
     first
-  (cat 3 '-' (scot %ud first))::
+  (cat 3 '-' (scot %ud first))
 ::
 ++  escape
   |=  a/@t
@@ -371,7 +407,7 @@
   ?~  todo
     (history-finish way done)
   :-  (zing ~(val by todo-map))
-  +>.$(cabs (~(put by cabs) way [todo done]))
+  +>.$(cabs (~(put by cabs) way [%query todo done]))
 ::
 ++  history-finish
   |=  {way/wire res/(list delt)}
@@ -383,6 +419,7 @@
   ^-  (quip move +>)
   =+  par=(scag (dec (lent way)) way)
   =+  cab=(~(got by cabs) par)
+  ?>  ?=({$query *} cab)
   =/  done
   %+  welp  done.cab
   =+  a=(need rot)
@@ -400,7 +437,7 @@
     =.  cabs  (~(del by cabs) par)
     (history-finish par done)
   :-  ~
-  +>.$(cabs (~(put by cabs) par [todo done]))
+  +>.$(cabs (~(put by cabs) par [%query todo done]))
 ::
 ++  get-history-for-rev
   |=  {way/wire art/cord rev/@ud}
@@ -459,13 +496,14 @@
     ~&  %nothing-to-export
     [~ +>.$]
   :-  (zing ~(val by todo-map))
-  +>.$(cabs (~(put by cabs) way [todo ~]))
+  +>.$(cabs (~(put by cabs) way [%query todo ~]))
 ::
 ++  diff-wiki-articles
   |=  {way/wire articles/(list delt)}
   ^-  (quip move +>)
   =+  par=(scag (dec (lent way)) way)
   =+  cab=(~(got by cabs) par)
+  ?>  ?=({$query *} cab)
   =+  done=(weld done.cab articles)
   =+  todo=(~(del in todo.cab) way)
   =+  pull=[ost.hid %pull way [our.hid %wiki] ~]
@@ -473,7 +511,7 @@
     :-  (welp ~[pull] (export-finish way done))
     +>.$(cabs (~(del by cabs) par))
   :-  ~[pull]
-  +>.$(cabs (~(put by cabs) par [todo done]))
+  +>.$(cabs (~(put by cabs) par [%query todo done]))
 ::
 ++  export-finish
   |=  {way/wire articles/(list delt)}
@@ -481,6 +519,72 @@
   =+  pax=(stab (woad (snag 1 way)))
   =+  wr=(foal pax [%wiki-articles !>(articles)])
   [ost.hid %info /writing our.hid wr]~
+::
+++  import
+  |=  pax/path
+  ^-  (quip move +>)
+  =+  maybe=(file pax)
+  ?~  maybe
+    ~&  [%load-failed pax=pax]
+    [~ +>.$]
+  :: sort article in decreasing (because they are inserted reversed) version order
+  =+  articles=(flop (sort (from-raw-delt-list (need maybe)) dor))
+  ~&  %+  turn  articles  |=(a/delt [art.a ver.a])
+  :: collect the list of articles into a map of list of revisions per article
+  =|  todo/(jar cord delt)
+  =.  todo
+  |-
+  ?:  =(articles ~)
+    todo
+  =+  first=(snag 0 articles)
+  $(todo (~(add ja todo) art.first first), articles (slag 1 articles))
+  =+  way=/import
+  =.  cabs  (~(put by cabs) way [%import todo])
+  (import-callback way ~)
+::
+++  import-callback
+  |=  {way/wire rot/riot}
+  ^-  (quip move +>)
+  =+  cab=(~(got by cabs) way)
+  ?>  ?=({$import *} cab)
+  ?:  =(todo.cab ~)
+    ~&  %import-done
+    :-  ~
+    +>.$(initialized |, cabs (~(del by cabs) way))
+  =+  todos=~(val by todo.cab)
+  =/  nexts
+  %+  turn  todos
+  |=  revs/(list delt)
+  (snag 0 revs)
+  =/  todo
+  %-  malt
+  %+  murn  (~(tap by todo.cab) ~)
+  |=  {art/cord revs/(list delt)}
+  =+  rest=(slag 1 revs)
+  ?~  rest
+    ~
+  (some [art rest])
+  =.  cabs  (~(put by cabs) way [%import todo])
+  :_  +>.$
+  %-  welp
+  :_
+    :: register callback for when the next commit appears
+    =+  dom=.^(dome cv+wiki-base-path-full)
+    =+  let=+(let.dom)
+    (read way [%next %x ud+let wiki-base-path])
+  %-  write-new-wiki-version
+  %+  turn  nexts
+  |=  next/delt
+  [next (slav %ud ver.next)]
+::
+++  from-raw-delt-list
+  |=  r/*
+  ?~  r
+    ~
+  ?>  ?=(^ r)
+  =+  ^-  c/{p/* q/*}  r
+  ?>  ?=(delt p.c)
+  [i=`delt`p.c t=$(r q.c)]
 ::
 ++  reap
   |=  {wir/wire error/(unit tang)}
