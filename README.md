@@ -7,7 +7,7 @@ Wiki for urbit
 
 ## Install
 ### %package
-If you have [%package](https://github.com/asssaf/urbit-wiki) installed on your urbit:
+If you have [%package](https://github.com/asssaf/urbit-package) installed on your urbit:
 ```
 dojo> :package [%install %home (need (epur 'https://raw.githubusercontent.com/asssaf/urbit-wiki/master/package.json'))]
 ```
