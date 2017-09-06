@@ -6,6 +6,7 @@ Wiki for urbit
 ![wiki demo](https://github.com/asssaf/urbit-wiki/raw/master/wiki.gif "Wiki demo")
 
 ## Install
+
 ### Makefile
 ```
 $ make DESTDIR=/path/to/pier
@@ -14,7 +15,7 @@ $ make DESTDIR=/path/to/pier
 ### Manually
 Copy everything into the pier:
 ```
-$ cp -av {app,mar,sur,web} /path/to/pier/home
+$ cp -a src/* /path/to/pier/home/
 ```
 
 ## Run

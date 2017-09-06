@@ -1,7 +1,5 @@
-DIRS = sur app mar web
-
 install: check-env
-	$(foreach dir,$(DIRS), cp -a $(dir)/* $(DESTDIR)/home/$(dir);)
+	cp -a src/* $(DESTDIR)/home/
 
 check-env:
 ifndef DESTDIR
