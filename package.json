@@ -5,7 +5,7 @@
   "items": [
     {
       "type": "fileset",
-      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master",
+      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master/src",
       "rels": [
         "/sur/wiki.hoon",
         "/mar/wiki/change.hoon",
@@ -15,7 +15,7 @@
     },
     {
       "type": "fileset",
-      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master",
+      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master/src",
       "rels": [
         "/web/pages/wiki.hoon",
         "/web/pages/wiki/wiki.css",
