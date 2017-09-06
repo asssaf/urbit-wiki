@@ -6,6 +6,11 @@ Wiki for urbit
 ![wiki demo](https://github.com/asssaf/urbit-wiki/raw/master/wiki.gif "Wiki demo")
 
 ## Install
+### %package
+If you have [%package](https://github.com/asssaf/urbit-wiki) installed on your urbit:
+```
+dojo> :package [%install %home (need (epur 'https://raw.githubusercontent.com/asssaf/urbit-wiki/master/package.json'))]
+```
 
 ### Makefile
 ```

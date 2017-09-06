@@ -1,0 +1,29 @@
+{
+  "name": "wiki",
+  "description": "Wiki for urbit",
+  "homepage": "https://github.com/asssaf/urbit-wiki",
+  "items": [
+    {
+      "type": "fileset",
+      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master",
+      "rels": [
+        "/sur/wiki.hoon",
+        "/mar/wiki/change.hoon",
+        "/mar/wiki/articles.hoon",
+        "/app/wiki.hoon"
+      ]
+    },
+    {
+      "type": "fileset",
+      "base": "https://raw.githubusercontent.com/asssaf/urbit-wiki/master",
+      "rels": [
+        "/web/pages/wiki.hoon",
+        "/web/pages/wiki/wiki.css",
+        "/web/pages/wiki/main.js",
+        "/web/pages/wiki/marked/marked.min.js",
+        "/web/pages/wiki/vue/vue.js",
+        "/web/pages/wiki/vue-router/vue-router.js"
+      ]
+    }
+  ]
+}
