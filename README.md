@@ -12,11 +12,11 @@ If you have [%package](https://github.com/asssaf/urbit-package) installed on you
 dojo> :package [%install %pkg (need (epur 'https://raw.githubusercontent.com/asssaf/urbit-wiki/master/package.json'))]
 ```
 
-### Makefile
+### Urbit Sync
+You can sync from `~bidner-hadlev-napler-pittev--livdyl-ritrev-ropwyc-bitpub`'s `%dist-wiki` desk.
 ```
-$ make DESTDIR=/path/to/pier
+dojo> |sync %home ~bidner-hadlev-napler-pittev--livdyl-ritrev-ropwyc-bitpub %dist-wiki
 ```
-
 ### Manually
 Copy everything into the pier:
 ```
