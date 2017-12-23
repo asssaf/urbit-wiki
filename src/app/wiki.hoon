@@ -8,9 +8,9 @@
 ++  move  {bone card}
 ++  card
   $%
-    {$info wire @p toro}
+    {$info wire @p toro:clay}
     {$diff drift}
-    {$warp wire sock riff}
+    {$warp wire sock riff:clay}
     {$peer wire {@p term} path}
     {$pull wire {@p term} $~}
   ==
@@ -34,7 +34,7 @@
 --
 ::
 |_  $:
-  hid/bowl
+  hid/bowl:gall
   articles/(list {@t $~})
   initialized/_|
   wiki-desk/_'home'
@@ -45,7 +45,8 @@
 :: general configuration interface
 ++  poke-noun
   |=  a/config
-  ?>  (team our.hid src.hid)      :: don't allow strangers
+  ^-  (quip move _+>)
+  ?>  (team:title our.hid src.hid)      :: don't allow strangers
   ?-  a
   {$serve *}
     ?:  =(d.a wiki-desk)
@@ -69,11 +70,11 @@
 :: save an updated wiki, or request
 ++  poke-wiki-change
   |=  a/delt
-  ^-  {(list move) _+>.$}
+  ^-  (quip move _+>)
   ~|  poked-with=a
   :_  +>.$
   :: do a security check - only duke or better allowed
-  ?.  ?=(?($czar $king $duke) (clan src.hid))
+  ?.  ?=(?($czar $king $duke) (clan:title src.hid))
     ~|  %duke-or-better-required
     !!
   =+  w=(read-wiki-immediate art.a)
@@ -88,7 +89,7 @@
 ::
 ++  peer-wiki-article
   |=  pax/path
-  ^-  {(list move) _+>.$}
+  ^-  (quip move _+>)
   ~&  [%subscribed-to pax=pax]
   ?:  =(pax /list)
     (get-articles wiki-base-path-full)
@@ -109,7 +110,7 @@
 ::
 ++  wiki-base-path-full-at
   |=  at/case
-  %-  tope
+  %-  en-beam:format
   %-  beam
   :_  (flop wiki-base-path)
   (beak our.hid wiki-desk at)
@@ -153,14 +154,14 @@
   (read wir [%sing %x cas pax])
 ::
 ++  read
-  |=  {wir/wire rav/rave}
+  |=  {wir/wire rav/rave:clay}
   [ost.hid %warp wir [our.hid our.hid] [wiki-desk (some rav)]]~
 ::
 ++  read-wiki-immediate
   |=  art/cord
   ^-  delt
   =+  pax=(path-from-article art)
-  =+  maybe=(file pax)
+  =+  maybe=(file:space:userlib pax)
   ?~  maybe
     :: article doesn't exist, return a default structure
     =+  r=*delt
@@ -175,7 +176,7 @@
 ++  parse-wiki
   |=  u/@t
   ^-  delt
-  =+  [atr mud]=(parse:frontmatter (lore u))
+  =+  [atr mud]=(parse:frontmatter (to-wain:format u))
   =+  aut=(~(got by atr) 'author')
   =+  at=(slav %da (~(got by atr) 'at'))
   =+  art=(~(got by atr) 'article')
@@ -206,7 +207,7 @@
   %-  write-wiki
   %+  turn  items
   |=  {a/delt ver/@ud}
-  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  dom=.^(dome:clay cv+wiki-base-path-full)
   =+  pax=(path-from-article-at art.a ud+let.dom)
   [a pax]
 ::
@@ -217,7 +218,7 @@
   %+  turn  items
   |=  {a/delt pax/path}
   :-  pax
-  %-  nule
+  %-  nule:unix:userlib
   %+  print:frontmatter
     (article-header a)
   ~[cot.a]
@@ -236,7 +237,7 @@
   %+  turn  items
   |=  {pax/path val/cage}
   ?>  ?=({* * * *} pax)
-  [t.t.t.pax (feel pax val)]
+  [t.t.t.pax (feel:space:userlib pax val)]
   [ost.hid %info /writing our.hid wiki-desk %& wr]~
 ::
 ++  watch-dir
@@ -263,7 +264,8 @@
   ==
 ::
 ++  writ
-  |=  {way/wire rot/riot}
+  |=  {way/wire rot/riot:clay}
+  ^-  (quip move _+>)
   ?:  =(way /article/list)
     =.  initialized  |                                  :: invalidate cache
     (get-articles wiki-base-path-full)
@@ -321,12 +323,12 @@
 ::
 ++  diff-by-path
   |=  {pax/path d/drift}
-  %+  turn  (pale hid (prix pax))
+  %+  turn  (pale:pubsub:userlib hid (prix:pubsub:userlib pax))
   |=({o/bone *} `move`[o %diff d])
 ::
 ++  diff-by-src
   |=  {pax/path s/ship d/drift}
-  %+  turn  (pale hid (prix-and-src pax s))
+  %+  turn  (pale:pubsub:userlib hid (prix-and-src pax s))
   |=({o/bone *} `move`[o %diff d])
 ::
 ++  diff-by-ost
@@ -336,22 +338,22 @@
 :: get cached article list, initialize if needed
 ++  get-articles
   |=  pax/path
-  ^-  {(list move) _+>.$}
+  ^-  (quip move _+>)
   ?.  initialized
     =.  initialized  &
     =.  articles  (list-dir-articles pax)
     :_  +>.$
     %+  welp  (watch-dir wiki-base-path)
     :: since the cache was rebuilt, notify all subscribers
-    (diff-by-path /wiki/article/list %json (jobe articles))
+    (diff-by-path /wiki/article/list %json (pairs:enjs:format articles))
   :_  +>.$
   :: since there was no change, notify only the event source
-  (diff-by-ost %json (jobe articles))
+  (diff-by-ost %json (pairs:enjs:format articles))
 ::
 ++  list-dir-articles
   |=  pax/path
   ^-  _articles
-  %+  murn  (~(tap by (list-dir pax)) ~)
+  %+  murn  ~(tap by (list-dir pax))
   |=  {p/@t q/*}
   ?~  q
     ~
@@ -372,12 +374,12 @@
   =+  a=.^(noun cx+(welp pax [p] [%md] ~))
   ?.  ?=(@t a)
     ~
-  =+  [atr mud]=(parse:frontmatter (lore a))
+  =+  [atr mud]=(parse:frontmatter (to-wain:format a))
   atr
 ::
 ++  get-history
   |=  pax/path
-  ^-  (quip move +>)
+  ^-  (quip move _+>)
   =+  way=(weld `path`/article/history pax)
   =+  art=(woad -.pax)
   =+  latest=(read-wiki-immediate art)
@@ -411,12 +413,13 @@
 ::
 ++  history-finish
   |=  {way/wire res/(list delt)}
+  ^-  (quip move _+>)
   :_  +>.$
   (diff-by-ost %wiki-articles (flop (sort res dor)))
 ::
 ++  history-callback
-  |=  {way/wire rot/riot}
-  ^-  (quip move +>)
+  |=  {way/wire rot/riot:clay}
+  ^-  (quip move _+>)
   =+  par=(scag (dec (lent way)) way)
   =+  cab=(~(got by cabs) par)
   ?>  ?=({$query *} cab)
@@ -442,7 +445,7 @@
 ++  get-history-for-rev
   |=  {way/wire art/cord rev/@ud}
   ^-  (list move)
-  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  dom=.^(dome:clay cv+wiki-base-path-full)
   =+  labels=lab.dom
   :: check that the label exists
   =+  label=(label-for-rev (escape-for-label art) rev)
@@ -460,7 +463,7 @@
   ^-  (list move)
   =+  label=(label-for-rev art ver)
   :: check that label doesn't exist yet
-  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  dom=.^(dome:clay cv+wiki-base-path-full)
   ?^  (~(get by lab.dom) label)
     ~|  [%label-already-exists label=label]
     !!
@@ -469,7 +472,7 @@
 :: check if the label for the next version is not taken, otherwise increment
 ++  get-next-version
   |=  {art/@t ver/@ud}
-  =+  dom=.^(dome cv+wiki-base-path-full)
+  =+  dom=.^(dome:clay cv+wiki-base-path-full)
   |-
   =+  label=(label-for-rev art ver)
   ?^  (~(get by lab.dom) label)
@@ -478,11 +481,11 @@
 ::
 ++  export
   |=  pax/path
-  ^-  (quip move +>)
+  ^-  (quip move _+>)
   =+  way=/export/[(wood (spat pax))]
   =/  todo-map
   %-  malt
-  %+  murn  (~(tap by (list-dir wiki-base-path-full)) ~)
+  %+  murn  ~(tap by (list-dir wiki-base-path-full))
   |=  {p/@t q/*}
   ?~  q
     ~
@@ -500,7 +503,7 @@
 ::
 ++  diff-wiki-articles
   |=  {way/wire articles/(list delt)}
-  ^-  (quip move +>)
+  ^-  (quip move _+>)
   =+  par=(scag (dec (lent way)) way)
   =+  cab=(~(got by cabs) par)
   ?>  ?=({$query *} cab)
@@ -517,13 +520,13 @@
   |=  {way/wire articles/(list delt)}
   ^-  (list move)
   =+  pax=(stab (woad (snag 1 way)))
-  =+  wr=(foal pax [%wiki-articles !>(articles)])
+  =+  wr=(foal:space:userlib pax [%wiki-articles !>(articles)])
   [ost.hid %info /writing our.hid wr]~
 ::
 ++  import
   |=  pax/path
-  ^-  (quip move +>)
-  =+  maybe=(file pax)
+  ^-  (quip move _+>)
+  =+  maybe=(file:space:userlib pax)
   ?~  maybe
     ~&  [%load-failed pax=pax]
     [~ +>.$]
@@ -543,8 +546,8 @@
   (import-callback way ~)
 ::
 ++  import-callback
-  |=  {way/wire rot/riot}
-  ^-  (quip move +>)
+  |=  {way/wire rot/riot:clay}
+  ^-  (quip move _+>)
   =+  cab=(~(got by cabs) way)
   ?>  ?=({$import *} cab)
   ?:  =(todo.cab ~)
@@ -558,7 +561,7 @@
   (snag 0 revs)
   =/  todo
   %-  malt
-  %+  murn  (~(tap by todo.cab) ~)
+  %+  murn  ~(tap by todo.cab)
   |=  {art/cord revs/(list delt)}
   =+  rest=(slag 1 revs)
   ?~  rest
@@ -569,7 +572,7 @@
   %-  welp
   :_
     :: register callback for when the next commit appears
-    =+  dom=.^(dome cv+wiki-base-path-full)
+    =+  dom=.^(dome:clay cv+wiki-base-path-full)
     =+  let=+(let.dom)
     (read way [%next %x ud+let wiki-base-path])
   %-  write-new-wiki-version
@@ -588,7 +591,7 @@
 ::
 ++  reap
   |=  {wir/wire error/(unit tang)}
-  ^-  {(list move) _+>.$}
+  ^-  (quip move _+>)
   ?~  error
     [~ +>.$]
   ~|  [%subscription-failed error]
@@ -597,7 +600,7 @@
 :: filter by path prefix and event source
 ++  prix-and-src
   |=  {pax/path src/ship}
-  (both (prix pax) (bysrc src))
+  (both (prix:pubsub:userlib pax) (bysrc src))
 ::
 ++  both  :: filter by two criteria
   |=  {a/$-(sink ?) b/$-(sink ?)}  |=  s/sink  ^-  ?

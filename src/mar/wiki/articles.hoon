@@ -1,31 +1,33 @@
 /-  wiki
 [wiki .]
+=,  enjs:format
+=,  mimes:html
 !:
 |_  {articles/(list delt)}
 ++  grab
   |%
   ++  noun  (list delt)
-  ++  mime  |=(^mime (json (rash q.q apex:poja)))
+  ++  mime  |=(^mime (json (rash q.q apex:de-json:html)))
   ++  json
     |=  jon/^json
     ^-  (list delt)
-    (need ((ar (ot author+so at+di article+so content+so version+so message+so ~)):jo jon))
+    (need ((ar (ot author+so at+di article+so content+so version+so message+so ~)):dejs-soft:format jon))
   --
 ++  grow
   |%
-  ++  mime  [/text/wiki-articles (taco (crip (pojo json)))]
+  ++  mime  [/text/wiki-articles (as-octs (crip (en-json:html json)))]
   ++  json
     :-  %a
     %+  turn  articles
     |=  article/delt
-    %-  jobe
+    %-  pairs
     :*
-      [%author (jape (trip aut.article))]
-      [%at (jode ?:(=(at.article *@da) ~1970.1.1 at.article))]
-      [%article (jape (trip art.article))]
-      [%content (jape (trip cot.article))]
-      [%version (jape (trip ver.article))]
-      [%message (jape (trip msg.article))]
+      [%author (tape (trip aut.article))]
+      [%at (time ?:(=(at.article *@da) ~1970.1.1 at.article))]
+      [%article (tape (trip art.article))]
+      [%content (tape (trip cot.article))]
+      [%version (tape (trip ver.article))]
+      [%message (tape (trip msg.article))]
       ~
     ==
   --

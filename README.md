@@ -1,4 +1,6 @@
 # urbit-wiki
+[![package hash](https://img.shields.io/badge/dynamic/json.svg?label=%package%20hash&colorB=008bb8&prefix=&suffix=&query=$.hash&uri=https://raw.githubusercontent.com/asssaf/urbit-wiki/master/package.json)](https://raw.githubusercontent.com/asssaf/urbit-wiki/master/package.json)
+[![sync ship](https://img.shields.io/badge/dynamic/json.svg?label=sync%20ship&colorB=008bb8&prefix=&suffix=&query=$.our&uri=https://dist.u.replaythat.com/pages/badge.json)](#urbit-sync)
 
 ## Description
 Wiki for urbit
@@ -13,9 +15,9 @@ dojo> :package|install %pkg "https://raw.githubusercontent.com/asssaf/urbit-wiki
 ```
 
 ### Urbit Sync
-You can sync from `~bidner-hadlev-napler-pittev--livdyl-ritrev-ropwyc-bitpub`'s `%dist-wiki` desk.
+You can sync from the `%dist-wiki` desk on ![ship](https://img.shields.io/badge/dynamic/json.svg?label=ship&colorB=008bb8&prefix=&suffix=&query=$.our&uri=https://dist.u.replaythat.com/pages/badge.json).
 ```
-dojo> |sync %home ~bidner-hadlev-napler-pittev--livdyl-ritrev-ropwyc-bitpub %dist-wiki
+dojo> |sync %home ~dist-ship %dist-wiki
 ```
 ### Manually
 Copy everything into the pier:
