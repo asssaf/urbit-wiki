@@ -60,10 +60,10 @@ Since %clay is used for storage, all the history is also preserved.
 
 ## Export
 ```
-dojo> :wiki [%import %/backup/wiki-articles]
+dojo> :wiki [%export %/backup/wiki-articles]
 ```
 
 ## Import
 ```
-dojo> :wiki [%export %/backup/wiki-articles]
+dojo> :wiki [%import %/backup/wiki-articles]
 ```
