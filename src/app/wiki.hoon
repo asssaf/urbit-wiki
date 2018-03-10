@@ -533,6 +533,13 @@
   :: sort article in decreasing (because they are inserted reversed) version order
   =+  articles=(flop (sort (from-raw-delt-list (need maybe)) dor))
   ~&  %+  turn  articles  |=(a/delt [art.a ver.a])
+  :: skip articles that already have a label in %clay
+  =+  labels=lab:.^(dome:clay cv+wiki-base-path-full)
+  =/  articles
+  %+  skip  articles
+  |=  a/delt
+  =+  l=(label-for-rev (escape-for-label art.a) (slav %ud ver.a))
+  (~(has by labels) l)
   :: collect the list of articles into a map of list of revisions per article
   =|  todo/(jar cord delt)
   =.  todo
