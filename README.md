@@ -57,3 +57,13 @@ For internal wiki links use the format `[[other-page]]`
 All wiki pages are stored at `pier/home/web/pages/wiki/pub`
 
 Since %clay is used for storage, all the history is also preserved.
+
+## Export
+```
+dojo> :wiki [%import %/backup/wiki-articles]
+```
+
+## Import
+```
+dojo> :wiki [%export %/backup/wiki-articles]
+```
